@@ -2,13 +2,21 @@ language: cpp
 dist: xenial
 
 script:
-  - ./autogen.sh
-  - ./configure $CONFIGURE
-  - make
-  - make ${TEST:-test}
+  - if [ "$CHECK_CLANG_FORMAT" == "True" ]; then
+      clang-format --version;
+      .travis/check_clang_format.sh;
+    else
+      ./autogen.sh;
+      ./configure $CONFIGURE;
+      make;
+      make ${TEST:-test};
+    fi
 
 matrix:
   include:
+
+  # Job 0: Ensure clang-format was applied
+  - env: CHECK_CLANG_FORMAT=True
 
   # Job 1: Linux native GCC
   - os: linux
@@ -32,81 +40,6 @@ matrix:
         - libzstd1-dev
         - libb2-dev
 
-  # Job 3: Mac OS X native Clang
-  - os: osx
-    compiler: clang
-    env: V=1 CONFIGURE="--with-libzstd-from-internet --with-libb2-from-internet" ENABLE_CACHE_CLEANUP_TESTS=1
-
-  # Job 4: Linux 32-bit native
-  - os: linux
-    compiler: gcc
-    env: V=1 CFLAGS="-m32 -g -O2" CXXFLAGS="-m32 -g -O2" LDFLAGS="-m32" CONFIGURE="--host=i386-linux-gnu --with-libzstd-from-internet --with-libb2-from-internet" ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - gcc-multilib
-        - lib32stdc++-5-dev
-
-  # Job 5: Linux cross-compiled 32-bit MinGW
-  - os: linux
-    compiler: i686-w64-mingw32-g++-posix
-    env: V=1 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix CONFIGURE="--host=i686-w64-mingw32 --with-libzstd-from-internet --with-libb2-from-internet" TEST="unittest/run.exe" ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - elfutils
-
-  # Job 6: Linux cross-compiled 64-bit MinGW
-  - os: linux
-    compiler: x86_64-w64-mingw32-g++
-    env: V=1 CC=i686-w64-mingw32-gcc-posix CXX=i686-w64-mingw32-g++-posix CONFIGURE="--host=x86_64-w64-mingw32 --with-libzstd-from-internet --with-libb2-from-internet" TEST="unittest/run.exe" ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - elfutils
-
-  # Job 7: Clang's undefined behavior sanitizer (UBSan)
-  - os: linux
-    compiler: clang
-    env: V=1 CFLAGS="-fsanitize=undefined" CXXFLAGS="-fsanitize=undefined" LDFLAGS="-fsanitize=undefined" ASAN_OPTIONS="detect_leaks=0" ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - elfutils
-        - libzstd1-dev
-        - libb2-dev
-
-  # Job 8: Clang's address sanitizer
-  - os: linux
-    compiler: clang
-    env: V=1 CFLAGS="-fsanitize=address -g" CXXFLAGS="-fsanitize=address -g" LDFLAGS="-fsanitize=address" ASAN_OPTIONS="detect_leaks=0" ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - elfutils
-        - libzstd1-dev
-        - libb2-dev
-
-  # Job 9: Clang static analyzer
-  - os: linux
-    compiler: clang
-    env: V=1 PATH="/usr/bin:$PATH" SCAN_BUILD=scan-build-7 TEST=analyze ENABLE_CACHE_CLEANUP_TESTS=1
-    addons:
-      apt:
-        packages:
-        - libzstd1-dev
-        - libb2-dev
-
-  # Job 10: Linux GCC with CUDA compiler
-  - os: linux
-    compiler: gcc
-    env: V=1 CUDA=10.1.243-1 ENABLE_CACHE_CLEANUP_TESTS=1
-    sudo: required
-    addons:
-      apt:
-        packages:
-        - elfutils
-        - libzstd1-dev
-        - libb2-dev
-    before_install:
-    - source ./.travis/install_cuda.sh
+  allow_failures:
+  # show only info, do not fail (yet) for clang-format
+  - env: CHECK_CLANG_FORMAT=True
