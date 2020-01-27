@@ -20,14 +20,33 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+CHANGES=$(git --no-pager diff --name-only FETCH_HEAD $(git merge-base FETCH_HEAD master))
+echo "CHANGES: $CHANGES"
+
 if [ -z "$TRAVIS_BRANCH" ]; then
   echo "Running locally..."
   DIFFBRANCH="origin/master"
   RANGE="HEAD origin/master"
 else
+  echo "TRAVIS_PULL_REQUEST_BRANCH: $TRAVIS_PULL_REQUEST_BRANCH"
+  echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
+  echo "--> current branch: ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}"
+  echo "---> diff branches with space: $(git diff --no-pager --name-only $TRAVIS_PULL_REQUEST_BRANCH $TRAVIS_BRANCH)"
+  echo "---> diff branches with dots1: $(git diff --no-pager --name-only $TRAVIS_PULL_REQUEST_BRANCH $TRAVIS_PULL_REQUEST_BRANCH...$TRAVIS_BRANCH)"
+  echo "---> diff branches with dots2: $(git diff --no-pager --name-only $TRAVIS_PULL_REQUEST_BRANCH...$TRAVIS_BRANCH $TRAVIS_BRANCH)"
+  echo "---> diff branches with dots3: $(git diff --no-pager --name-only $TRAVIS_PULL_REQUEST_BRANCH...$TRAVIS_BRANCH)"
+  # in case there have been other commits on master in the meantime
+  echo "--> common root: $(git merge-base $TRAVIS_PULL_REQUEST_BRANCH $TRAVIS_BRANCH)"
+  
+  git status
+  git log -5
+
   # prepare travis according to https://github.com/travis-ci/travis-ci/issues/6069
   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
   git fetch
+
+  CHANGES=$(git --no-pager diff --name-only FETCH_HEAD $(git merge-base FETCH_HEAD master))
+  echo "CHANGES2: $CHANGES"
 
   if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     # how to determine where we branched of if there is no 'master'?
