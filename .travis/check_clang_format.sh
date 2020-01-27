@@ -20,9 +20,14 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-ROOT=$(git merge-base HEAD origin/master)
+echo "TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST"
+echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
+
+ROOT=$(git merge-base HEAD master)
+echo "ROOT: $ROOT"
 
 FILES_TO_CHECK=$(git diff --name-only $ROOT | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
+echo "FILES_TO_CHECK: $FILES_TO_CHECK"
 
 # if FILES_TO_CHECK is empty git diff will not recognize it as a given parameter and diff everything
 if [ -z "${FILES_TO_CHECK}" ]; then
