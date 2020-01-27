@@ -20,15 +20,17 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-DIFFBRANCH=$TRAVIS_BRANCH
-
 if [ -z "$TRAVIS_BRANCH" ]; then
-  echo "Running locally against origin/master..."
   DIFFBRANCH="origin/master"
+  echo "Running locally against origin/master..."
   RANGE="$DIFFBRANCH"
+elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  DIFFBRANCH=$(git merge-base HEAD origin/master)
+  echo "Running non PR on travis against $DIFFBRANCH..."
+  RANGE="HEAD..$DIFFBRANCH"
 else
+  DIFFBRANCH=$TRAVIS_BRANCH
   echo "Running on travis against $TRAVIS_BRANCH..."
-  echo "TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST"
   RANGE="HEAD..$DIFFBRANCH"
 fi
 
