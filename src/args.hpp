@@ -21,7 +21,7 @@
 struct args
 {
   char** argv;
-  int argc;
+    int argc;
 };
 
 struct args* args_init(int, const char* const*);
