@@ -25,7 +25,7 @@ int format_float(char* buf, std::size_t size, const char* format, int precision,
 }
 struct sprintf_specs {
   int precision;
-  char type;
+    char type;
   bool alt : 1;
 
   template <typename Char>
