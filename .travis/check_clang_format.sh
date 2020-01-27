@@ -20,13 +20,22 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-echo "TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST"
-echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
+DIFFBRANCH=$TRAVIS_BRANCH
 
-ROOT=$(git merge-base HEAD master)
-echo "ROOT: $ROOT"
+if [ -z "$TRAVIS_BRANCH" ]; then
+  echo "Running locally against origin/master..."
+  DIFFBRANCH="origin/master"
+  RANGE="$DIFFBRANCH"
+else
+  echo "Running on travis against $TRAVIS_BRANCH..."
+  echo "TRAVIS_PULL_REQUEST: $TRAVIS_PULL_REQUEST"
+  RANGE="HEAD..$DIFFBRANCH"
+fi
 
-FILES_TO_CHECK=$(git diff --name-only $ROOT | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
+GITCMD="git diff --name-only --diff-filter=AM $RANGE"
+echo "GITCMD: $GITCMD"
+
+FILES_TO_CHECK=$($GITCMD | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
 echo "FILES_TO_CHECK: $FILES_TO_CHECK"
 
 # if FILES_TO_CHECK is empty git diff will not recognize it as a given parameter and diff everything
@@ -35,7 +44,7 @@ if [ -z "${FILES_TO_CHECK}" ]; then
   exit 0
 fi
 
-FORMAT_DIFF=$(git diff -U0 $ROOT -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
+FORMAT_DIFF=$(git diff -U0 $DIFFBRANCH -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
 
 if [ -z "${FORMAT_DIFF}" ]; then
   echo "clang-format: passed."
