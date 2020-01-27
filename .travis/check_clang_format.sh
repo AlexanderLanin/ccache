@@ -21,20 +21,22 @@
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 if [ -z "$TRAVIS_BRANCH" ]; then
+  echo "Running locally..."
   DIFFBRANCH="origin/master"
-  echo "Running locally against origin/master..."
-  RANGE="$DIFFBRANCH"
+  #RANGE="origin/master"
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  DIFFBRANCH=$(git merge-base HEAD origin/master)
-  echo "Running non PR on travis against $DIFFBRANCH..."
-  RANGE="HEAD..$DIFFBRANCH"
+  # how to determine where we branched of if there is no 'master'?
+  #RANGE="$(git merge-base HEAD master)..HEAD"
+  echo "Running non PR on travis..."
+  DIFFBRANCH="HEAD^1"
+  #RANGE="HEAD"
 else
+  echo "Running PR on travis..."
   DIFFBRANCH=$TRAVIS_BRANCH
-  echo "Running on travis against $TRAVIS_BRANCH..."
-  RANGE="HEAD..$DIFFBRANCH"
+  #RANGE="HEAD..$TRAVIS_BRANCH"
 fi
 
-GITCMD="git diff --name-only --diff-filter=AM $RANGE"
+GITCMD="git diff --name-only --diff-filter=AM HEAD..$DIFFBRANCH"
 echo "GITCMD: $GITCMD"
 
 FILES_TO_CHECK=$($GITCMD | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
