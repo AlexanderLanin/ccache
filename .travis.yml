@@ -2,10 +2,14 @@ language: cpp
 dist: xenial
 
 script:
-  - ./autogen.sh
-  - ./configure $CONFIGURE
-  - make
-  - make ${TEST:-test}
+  - if [ "$CHECK_CLANG_FORMAT" == "True" ]; then
+      sh .travis/check-clang-format.sh;
+    else
+      ./autogen.sh;
+      ./configure $CONFIGURE;
+      make;
+      make ${TEST:-test};
+    fi
 
 matrix:
   include:
@@ -110,3 +114,17 @@ matrix:
         - libb2-dev
     before_install:
     - source ./.travis/install_cuda.sh
+
+  # Job 11: Ensure clang-format was applied
+  - env: CHECK_CLANG_FORMAT=True
+    addons:
+      apt:
+        packages:
+        - clang-format-9.0
+
+  allow_failures:
+  # show only info, do not fail (yet) for clang-format
+  - addons:
+      apt:
+        packages:
+        - clang-format-9.0
