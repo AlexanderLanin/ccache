@@ -23,20 +23,26 @@
 if [ -z "$TRAVIS_BRANCH" ]; then
   echo "Running locally..."
   DIFFBRANCH="origin/master"
-  #RANGE="origin/master"
-elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  # how to determine where we branched of if there is no 'master'?
-  #RANGE="$(git merge-base HEAD master)..HEAD"
-  echo "Running non PR on travis..."
-  DIFFBRANCH="HEAD^1"
-  #RANGE="HEAD"
+  RANGE="HEAD origin/master"
 else
-  echo "Running PR on travis..."
-  DIFFBRANCH=$TRAVIS_BRANCH
-  #RANGE="HEAD..$TRAVIS_BRANCH"
+  # prepare travis according to https://github.com/travis-ci/travis-ci/issues/6069
+  git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+  git fetch
+
+  if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    # how to determine where we branched of if there is no 'master'?
+    #RANGE="$(git merge-base HEAD master)..HEAD"
+    echo "Running non PR on travis..."
+    DIFFBRANCH="HEAD^1"
+    RANGE="HEAD origin/${TRAVIS_BRANCH}"
+  else
+    echo "Running PR on travis..."
+    DIFFBRANCH=$TRAVIS_BRANCH
+    RANGE="HEAD origin/$TRAVIS_BRANCH"
+  fi
 fi
 
-GITCMD="git diff --name-only --diff-filter=AM HEAD..$DIFFBRANCH"
+GITCMD="git diff --name-only --diff-filter=AM $RANGE"
 echo "GITCMD: $GITCMD"
 
 FILES_TO_CHECK=$($GITCMD | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
@@ -48,7 +54,7 @@ if [ -z "${FILES_TO_CHECK}" ]; then
   exit 0
 fi
 
-FORMAT_DIFF=$(git diff -U0 $DIFFBRANCH -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
+FORMAT_DIFF=$(git diff -U0 $RANGE -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
 
 if [ -z "${FORMAT_DIFF}" ]; then
   echo "clang-format: passed."
