@@ -1,5 +1,6 @@
 #!/bin/bash
 # This script returns zero if and only if clang-format has been properly applied to a check.
+# It is assuming current branch branched off of origin/master in order to compile list of to be formatted code.
 
 
 # Copyright (C) 2020 Joel Rosdahl and other contributors
@@ -20,29 +21,24 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CHANGES=$(git --no-pager diff --name-only FETCH_HEAD $(git merge-base FETCH_HEAD master))
-echo "CHANGES: $CHANGES"
-
 if [ -z "$TRAVIS_BRANCH" ]; then
-  echo "Running locally..."
-  DIFFBRANCH="origin/master"
-  RANGE="HEAD origin/master"
+
+  MERGE_BASE=$(git merge-base HEAD origin/master)
+  DIFF_RANGE="HEAD $MERGE_BASE"
 else
+  # FIXME: for debugging in travis some output is needed:
   git status
-  git log -5
+  git log -10 --oneline
 
   if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     # prepare travis according to https://github.com/travis-ci/travis-ci/issues/6069
     git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git fetch
+    git fetch --quiet
 
-    echo "Running Non-PR on travis..."
-    echo "merge-base master: $(git merge-base HEAD master)"
-    echo "merge-base origin/master: $(git merge-base HEAD origin/master)"
-
-    DIFFBRANCH="HEAD^1"
-    # HEAD = ${TRAVIS_BRANCH}
-    RANGE="HEAD origin/master"
+    # diff from current to common root (merge-base) of current and master
+    # Note: HEAD is the same as ${TRAVIS_BRANCH} (branch to be merged)
+    MERGE_BASE=$(git merge-base HEAD origin/master)
+    DIFF_RANGE="HEAD $MERGE_BASE"
   else
     echo "Running PR on travis..."
 
@@ -56,12 +52,11 @@ else
     # in case there have been other commits on master in the meantime
     echo "--> common root: $(git merge-base $TRAVIS_PULL_REQUEST_BRANCH $TRAVIS_BRANCH)"
 
-    DIFFBRANCH=$TRAVIS_BRANCH
-    RANGE="HEAD origin/$TRAVIS_BRANCH"
+    DIFF_RANGE="HEAD origin/$TRAVIS_BRANCH"
   fi
 fi
 
-GITCMD="git diff --name-only --diff-filter=AM $RANGE"
+GITCMD="git diff --name-only --diff-filter=AM $DIFF_RANGE"
 echo "GITCMD: $GITCMD --> $($GITCMD)"
 
 FILES_TO_CHECK=$($GITCMD | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
@@ -73,7 +68,7 @@ if [ -z "${FILES_TO_CHECK}" ]; then
   exit 0
 fi
 
-FORMAT_DIFF=$(git diff -U0 $RANGE -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
+FORMAT_DIFF=$(git diff -U0 $DIFF_RANGE -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
 
 if [ -z "${FORMAT_DIFF}" ]; then
   echo "clang-format: passed."
