@@ -20,8 +20,9 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+ROOT=$(git merge-base HEAD origin/master)
 
-FILES_TO_CHECK=$(git diff --name-only HEAD | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
+FILES_TO_CHECK=$(git diff --name-only $ROOT | grep -v -E "^src/third_party/" | grep -E ".*\.(cpp|hpp)$")
 
 # if FILES_TO_CHECK is empty git diff will not recognize it as a given parameter and diff everything
 if [ -z "${FILES_TO_CHECK}" ]; then
@@ -29,7 +30,7 @@ if [ -z "${FILES_TO_CHECK}" ]; then
   exit 0
 fi
 
-FORMAT_DIFF=$(git diff -U0 HEAD -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
+FORMAT_DIFF=$(git diff -U0 $ROOT -- ${FILES_TO_CHECK} | python .travis/clang-format-diff.py -p1 -style=file)
 
 if [ -z "${FORMAT_DIFF}" ]; then
   echo "clang-format: passed."
