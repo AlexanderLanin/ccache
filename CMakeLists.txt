@@ -1,26 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
-find_package(Git)
-execute_process(COMMAND ${GIT_EXECUTABLE} describe
-  OUTPUT_VARIABLE git_output
-  ERROR_VARIABLE git_error
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-if (NOT git_error)
-  string(REGEX MATCH "[0-9.]+" CCACHE_VERSION ${git_output})
-else()
-  set(CCACHE_VERSION 3.7.7)
-endif()
-
-file(WRITE ${CMAKE_BINARY_DIR}/version.cpp.in [=[
-  extern const char CCACHE_VERSION[];
-  const char CCACHE_VERSION[] = "@CCACHE_VERSION@";
-]=])
-configure_file(
-  ${CMAKE_BINARY_DIR}/version.cpp.in
-  ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
-
 project(ccache VERSION ${CCACHE_VERSION} LANGUAGES C CXX)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+set(CMAKE_C_EXTENSIONS FALSE)
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_EXTENSIONS FALSE)
 
 #
 # 3rd party
@@ -36,6 +22,7 @@ find_package(libb2 0.98.1 REQUIRED)
 #
 # ccache
 #
+include(WriteVersionToCpp)
 
 set(ccache_sources
   src/args.cpp src/args.hpp
@@ -98,7 +85,7 @@ set(ccache_sources
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
-add_library(ccache_object_lib OBJECT ${ccache_sources})
+add_library(ccache_object_lib STATIC ${ccache_sources})
 target_include_directories(ccache_object_lib
   PUBLIC ${CMAKE_BINARY_DIR} . src src/third_party)
 target_link_libraries(ccache_object_lib

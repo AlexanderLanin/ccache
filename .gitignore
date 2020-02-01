@@ -35,3 +35,5 @@ zstd-*.tar.gz
 
 # Visual Studio Code
 .vscode/
+
+build/
