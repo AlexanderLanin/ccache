@@ -87,7 +87,7 @@ set(ccache_sources
 
 add_library(ccache_object_lib STATIC ${ccache_sources})
 target_include_directories(ccache_object_lib
-  PUBLIC ${CMAKE_BINARY_DIR} . src src/third_party)
+  PUBLIC ${CMAKE_BINARY_DIR} src)
 target_link_libraries(ccache_object_lib
   PUBLIC ZSTD::ZSTD libb2::libb2)
 

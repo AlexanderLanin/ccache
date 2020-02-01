@@ -30,14 +30,14 @@ template<> struct formatter<nonstd::string_view>
 {
   template<typename ParseContext>
   constexpr auto
-  parse(ParseContext& ctx) -> decltype(ctx.begin())
+  parse(ParseContext& ctx) const -> decltype(ctx.begin())
   {
     return ctx.begin();
   }
 
   template<typename FormatContext>
   auto
-  format(const nonstd::string_view& sv, FormatContext& ctx)
+  format(const nonstd::string_view& sv, FormatContext& ctx) const
     -> decltype(ctx.out())
   {
     return format_to(ctx.out(), "{}", fmt::string_view(sv.data(), sv.size()));
