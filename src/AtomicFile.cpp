@@ -43,8 +43,7 @@ AtomicFile::~AtomicFile()
   }
 }
 
-void
-AtomicFile::write(const std::string& data)
+void AtomicFile::write(const std::string& data)
 {
   if (fwrite(data.data(), data.size(), 1, m_stream) != 1) {
     throw Error(
@@ -52,8 +51,7 @@ AtomicFile::write(const std::string& data)
   }
 }
 
-void
-AtomicFile::write(const std::vector<uint8_t>& data)
+void AtomicFile::write(const std::vector<uint8_t>& data)
 {
   if (fwrite(data.data(), data.size(), 1, m_stream) != 1) {
     throw Error(
@@ -61,8 +59,7 @@ AtomicFile::write(const std::vector<uint8_t>& data)
   }
 }
 
-void
-AtomicFile::commit()
+void AtomicFile::commit()
 {
   assert(m_stream);
   int result = fclose(m_stream);

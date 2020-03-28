@@ -20,8 +20,7 @@
 
 #include "Util.hpp"
 
-const Stat&
-CacheFile::lstat() const
+const Stat& CacheFile::lstat() const
 {
   if (!m_stat) {
     m_stat = Stat::lstat(m_path);
@@ -30,8 +29,7 @@ CacheFile::lstat() const
   return *m_stat;
 }
 
-CacheFile::Type
-CacheFile::type() const
+CacheFile::Type CacheFile::type() const
 {
   if (Util::ends_with(m_path, ".manifest")) {
     return Type::manifest;

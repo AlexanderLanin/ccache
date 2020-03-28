@@ -47,8 +47,7 @@ static const char COLOR_RED[] = "\x1b[1;31m";
 
 #define COLOR(tty, color) ((tty) ? COLOR_##color : "")
 
-static int
-is_tty(int fd)
+static int is_tty(int fd)
 {
 #ifdef USE_COLOR
   struct termios t;
@@ -59,14 +58,12 @@ is_tty(int fd)
 #endif
 }
 
-static const char*
-plural_s(unsigned n)
+static const char* plural_s(unsigned n)
 {
   return n == 1 ? "" : "s";
 }
 
-int
-cct_run(const suite_fn* suites, int verbose_output)
+int cct_run(const suite_fn* suites, int verbose_output)
 {
   const suite_fn* suite;
   int tty = is_tty(1);
@@ -105,8 +102,7 @@ cct_run(const suite_fn* suites, int verbose_output)
   return failed_tests > 0 ? 1 : 0;
 }
 
-void
-cct_suite_begin(const char* name)
+void cct_suite_begin(const char* name)
 {
   ++total_suites;
   if (verbose) {
@@ -118,15 +114,13 @@ cct_suite_begin(const char* name)
   current_suite = name;
 }
 
-void
-cct_suite_end()
+void cct_suite_end()
 {
   cct_chdir(dir_before_suite.c_str());
   dir_before_suite.clear();
 }
 
-void
-cct_test_begin(const char* name)
+void cct_test_begin(const char* name)
 {
   ++total_tests;
   if (verbose) {
@@ -140,8 +134,7 @@ cct_test_begin(const char* name)
   x_setenv("CCACHE_CONFIG_PATH", "/dev/null");
 }
 
-void
-cct_test_end()
+void cct_test_end()
 {
   if (!dir_before_test.empty()) {
     cct_chdir(dir_before_test.c_str());
@@ -149,8 +142,7 @@ cct_test_end()
   }
 }
 
-void
-cct_check_passed(const char* file, int line, const char* what)
+void cct_check_passed(const char* file, int line, const char* what)
 {
   ++total_asserts;
   if (verbose) {
@@ -158,12 +150,11 @@ cct_check_passed(const char* file, int line, const char* what)
   }
 }
 
-void
-cct_check_failed(const char* file,
-                 int line,
-                 const char* what,
-                 const char* expected,
-                 const char* actual)
+void cct_check_failed(const char* file,
+                      int line,
+                      const char* what,
+                      const char* expected,
+                      const char* actual)
 {
   ++total_asserts;
   ++failed_tests;
@@ -184,12 +175,11 @@ cct_check_failed(const char* file,
   fprintf(stderr, "\n");
 }
 
-bool
-cct_check_double_eq(const char* file,
-                    int line,
-                    const char* expression,
-                    double expected,
-                    double actual)
+bool cct_check_double_eq(const char* file,
+                         int line,
+                         const char* expression,
+                         double expected,
+                         double actual)
 {
   if (fabs(expected - actual) < DBL_EPSILON) {
     cct_check_passed(file, line, expression);
@@ -203,12 +193,11 @@ cct_check_double_eq(const char* file,
     return false;
   }
 }
-bool
-cct_check_int_eq(const char* file,
-                 int line,
-                 const char* expression,
-                 int64_t expected,
-                 int64_t actual)
+bool cct_check_int_eq(const char* file,
+                      int line,
+                      const char* expression,
+                      int64_t expected,
+                      int64_t actual)
 {
   if (expected == actual) {
     cct_check_passed(file, line, expression);
@@ -228,13 +217,12 @@ cct_check_int_eq(const char* file,
   }
 }
 
-bool
-cct_check_data_eq(const char* file,
-                  int line,
-                  const char* expression,
-                  const uint8_t* expected,
-                  const uint8_t* actual,
-                  size_t size)
+bool cct_check_data_eq(const char* file,
+                       int line,
+                       const char* expression,
+                       const uint8_t* expected,
+                       const uint8_t* actual,
+                       size_t size)
 {
   if (memcmp(actual, expected, size) == 0) {
     cct_check_passed(file, line, expression);
@@ -251,14 +239,13 @@ cct_check_data_eq(const char* file,
   }
 }
 
-bool
-cct_check_str_eq(const char* file,
-                 int line,
-                 const char* expression,
-                 const char* expected,
-                 const char* actual,
-                 bool free1,
-                 bool free2)
+bool cct_check_str_eq(const char* file,
+                      int line,
+                      const char* expression,
+                      const char* expected,
+                      const char* actual,
+                      bool free1,
+                      bool free2)
 {
   bool result;
 
@@ -283,14 +270,13 @@ cct_check_str_eq(const char* file,
   return result;
 }
 
-bool
-cct_check_args_eq(const char* file,
-                  int line,
-                  const char* expression,
-                  const struct args* expected,
-                  const struct args* actual,
-                  bool free1,
-                  bool free2)
+bool cct_check_args_eq(const char* file,
+                       int line,
+                       const char* expression,
+                       const struct args* expected,
+                       const struct args* actual,
+                       bool free1,
+                       bool free2)
 {
   bool result;
 
@@ -315,8 +301,7 @@ cct_check_args_eq(const char* file,
   return result;
 }
 
-void
-cct_chdir(const char* path)
+void cct_chdir(const char* path)
 {
   if (chdir(path) != 0) {
     fprintf(stderr, "chdir: %s: %s", path, strerror(errno));
@@ -324,8 +309,7 @@ cct_chdir(const char* path)
   }
 }
 
-void
-cct_wipe(const char* path)
+void cct_wipe(const char* path)
 {
   // TODO: rewrite using traverse().
 #ifndef __MINGW32__
@@ -339,8 +323,7 @@ cct_wipe(const char* path)
   free(command);
 }
 
-void
-cct_create_fresh_dir(const char* path)
+void cct_create_fresh_dir(const char* path)
 {
   cct_wipe(path);
   if (mkdir(path, 0777) != 0) {

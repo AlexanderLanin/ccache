@@ -27,11 +27,10 @@
 #include <algorithm>
 #include <math.h>
 
-static void
-delete_file(const std::string& path,
-            uint64_t size,
-            uint64_t* cache_size,
-            uint32_t* files_in_cache)
+static void delete_file(const std::string& path,
+                        uint64_t size,
+                        uint64_t* cache_size,
+                        uint32_t* files_in_cache)
 {
   bool deleted = x_try_unlink(path.c_str()) == 0;
   if (!deleted && errno != ENOENT && errno != ESTALE) {
@@ -47,11 +46,10 @@ delete_file(const std::string& path,
 }
 
 // Clean up one cache subdirectory.
-void
-clean_up_dir(const std::string& subdir,
-             uint64_t max_size,
-             uint32_t max_files,
-             const Util::ProgressReceiver& progress_receiver)
+void clean_up_dir(const std::string& subdir,
+                  uint64_t max_size,
+                  uint32_t max_files,
+                  const Util::ProgressReceiver& progress_receiver)
 {
   cc_log("Cleaning up cache directory %s", subdir.c_str());
 
@@ -146,9 +144,8 @@ clean_up_dir(const std::string& subdir,
 }
 
 // Clean up all cache subdirectories.
-void
-clean_up_all(const Config& config,
-             const Util::ProgressReceiver& progress_receiver)
+void clean_up_all(const Config& config,
+                  const Util::ProgressReceiver& progress_receiver)
 {
   Util::for_each_level_1_subdir(
     config.cache_dir(),
@@ -163,9 +160,8 @@ clean_up_all(const Config& config,
 }
 
 // Wipe one cache subdirectory.
-static void
-wipe_dir(const std::string& subdir,
-         const Util::ProgressReceiver& progress_receiver)
+static void wipe_dir(const std::string& subdir,
+                     const Util::ProgressReceiver& progress_receiver)
 {
   cc_log("Clearing out cache directory %s", subdir.c_str());
 
@@ -187,8 +183,8 @@ wipe_dir(const std::string& subdir,
 }
 
 // Wipe all cached files in all subdirectories.
-void
-wipe_all(const Config& config, const Util::ProgressReceiver& progress_receiver)
+void wipe_all(const Config& config,
+              const Util::ProgressReceiver& progress_receiver)
 {
   Util::for_each_level_1_subdir(
     config.cache_dir(), wipe_dir, progress_receiver);

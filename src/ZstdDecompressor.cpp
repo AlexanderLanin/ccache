@@ -39,8 +39,7 @@ ZstdDecompressor::~ZstdDecompressor()
   ZSTD_freeDStream(m_zstd_stream);
 }
 
-void
-ZstdDecompressor::read(void* data, size_t count)
+void ZstdDecompressor::read(void* data, size_t count)
 {
   size_t bytes_read = 0;
   while (bytes_read < count) {
@@ -73,8 +72,7 @@ ZstdDecompressor::read(void* data, size_t count)
   }
 }
 
-void
-ZstdDecompressor::finalize()
+void ZstdDecompressor::finalize()
 {
   if (!m_reached_stream_end) {
     throw Error("garbage data at end of zstd input stream");

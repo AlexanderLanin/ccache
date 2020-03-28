@@ -164,260 +164,217 @@ private:
                 const std::string& origin);
 };
 
-inline const std::string&
-Config::base_dir() const
+inline const std::string& Config::base_dir() const
 {
   return m_base_dir;
 }
 
-inline const std::string&
-Config::cache_dir() const
+inline const std::string& Config::cache_dir() const
 {
   return m_cache_dir;
 }
 
-inline uint32_t
-Config::cache_dir_levels() const
+inline uint32_t Config::cache_dir_levels() const
 {
   return m_cache_dir_levels;
 }
 
-inline const std::string&
-Config::compiler() const
+inline const std::string& Config::compiler() const
 {
   return m_compiler;
 }
 
-inline const std::string&
-Config::compiler_check() const
+inline const std::string& Config::compiler_check() const
 {
   return m_compiler_check;
 }
 
-inline bool
-Config::compression() const
+inline bool Config::compression() const
 {
   return m_compression;
 }
 
-inline int8_t
-Config::compression_level() const
+inline int8_t Config::compression_level() const
 {
   return m_compression_level;
 }
 
-inline const std::string&
-Config::cpp_extension() const
+inline const std::string& Config::cpp_extension() const
 {
   return m_cpp_extension;
 }
 
-inline bool
-Config::debug() const
+inline bool Config::debug() const
 {
   return m_debug;
 }
 
-inline bool
-Config::depend_mode() const
+inline bool Config::depend_mode() const
 {
   return m_depend_mode;
 }
 
-inline bool
-Config::direct_mode() const
+inline bool Config::direct_mode() const
 {
   return m_direct_mode;
 }
 
-inline bool
-Config::disable() const
+inline bool Config::disable() const
 {
   return m_disable;
 }
 
-inline const std::string&
-Config::extra_files_to_hash() const
+inline const std::string& Config::extra_files_to_hash() const
 {
   return m_extra_files_to_hash;
 }
 
-inline bool
-Config::file_clone() const
+inline bool Config::file_clone() const
 {
   return m_file_clone;
 }
 
-inline bool
-Config::hard_link() const
+inline bool Config::hard_link() const
 {
   return m_hard_link;
 }
 
-inline bool
-Config::hash_dir() const
+inline bool Config::hash_dir() const
 {
   return m_hash_dir;
 }
 
-inline const std::string&
-Config::ignore_headers_in_manifest() const
+inline const std::string& Config::ignore_headers_in_manifest() const
 {
   return m_ignore_headers_in_manifest;
 }
 
-inline bool
-Config::keep_comments_cpp() const
+inline bool Config::keep_comments_cpp() const
 {
   return m_keep_comments_cpp;
 }
 
-inline double
-Config::limit_multiple() const
+inline double Config::limit_multiple() const
 {
   return m_limit_multiple;
 }
 
-inline const std::string&
-Config::log_file() const
+inline const std::string& Config::log_file() const
 {
   return m_log_file;
 }
 
-inline uint32_t
-Config::max_files() const
+inline uint32_t Config::max_files() const
 {
   return m_max_files;
 }
 
-inline uint64_t
-Config::max_size() const
+inline uint64_t Config::max_size() const
 {
   return m_max_size;
 }
 
-inline const std::string&
-Config::path() const
+inline const std::string& Config::path() const
 {
   return m_path;
 }
 
-inline bool
-Config::pch_external_checksum() const
+inline bool Config::pch_external_checksum() const
 {
   return m_pch_external_checksum;
 }
 
-inline const std::string&
-Config::prefix_command() const
+inline const std::string& Config::prefix_command() const
 {
   return m_prefix_command;
 }
 
-inline const std::string&
-Config::prefix_command_cpp() const
+inline const std::string& Config::prefix_command_cpp() const
 {
   return m_prefix_command_cpp;
 }
 
-inline bool
-Config::read_only() const
+inline bool Config::read_only() const
 {
   return m_read_only;
 }
 
-inline bool
-Config::read_only_direct() const
+inline bool Config::read_only_direct() const
 {
   return m_read_only_direct;
 }
 
-inline bool
-Config::recache() const
+inline bool Config::recache() const
 {
   return m_recache;
 }
 
-inline bool
-Config::run_second_cpp() const
+inline bool Config::run_second_cpp() const
 {
   return m_run_second_cpp;
 }
 
-inline uint32_t
-Config::sloppiness() const
+inline uint32_t Config::sloppiness() const
 {
   return m_sloppiness;
 }
 
-inline bool
-Config::stats() const
+inline bool Config::stats() const
 {
   return m_stats;
 }
 
-inline const std::string&
-Config::temporary_dir() const
+inline const std::string& Config::temporary_dir() const
 {
   return m_temporary_dir;
 }
 
-inline uint32_t
-Config::umask() const
+inline uint32_t Config::umask() const
 {
   return m_umask;
 }
 
-inline void
-Config::set_base_dir(const std::string& value)
+inline void Config::set_base_dir(const std::string& value)
 {
   m_base_dir = value;
 }
 
-inline void
-Config::set_cache_dir(const std::string& value)
+inline void Config::set_cache_dir(const std::string& value)
 {
   m_cache_dir = value;
 }
 
-inline void
-Config::set_cpp_extension(const std::string& value)
+inline void Config::set_cpp_extension(const std::string& value)
 {
   m_cpp_extension = value;
 }
 
-inline void
-Config::set_depend_mode(bool value)
+inline void Config::set_depend_mode(bool value)
 {
   m_depend_mode = value;
 }
 
-inline void
-Config::set_direct_mode(bool value)
+inline void Config::set_direct_mode(bool value)
 {
   m_direct_mode = value;
 }
 
-inline void
-Config::set_limit_multiple(double value)
+inline void Config::set_limit_multiple(double value)
 {
   m_limit_multiple = value;
 }
 
-inline void
-Config::set_max_files(uint32_t value)
+inline void Config::set_max_files(uint32_t value)
 {
   m_max_files = value;
 }
 
-inline void
-Config::set_max_size(uint64_t value)
+inline void Config::set_max_size(uint64_t value)
 {
   m_max_size = value;
 }
 
-inline void
-Config::set_run_second_cpp(bool value)
+inline void Config::set_run_second_cpp(bool value)
 {
   m_run_second_cpp = value;
 }

@@ -55,8 +55,7 @@
 #endif
 
 // Something went badly wrong!
-void
-fatal(const char* format, ...)
+void fatal(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -67,8 +66,7 @@ fatal(const char* format, ...)
   throw FatalError(msg);
 }
 
-bool
-write_fd(int fd, const void* buf, size_t size)
+bool write_fd(int fd, const void* buf, size_t size)
 {
   ssize_t written = 0;
   do {
@@ -87,8 +85,7 @@ write_fd(int fd, const void* buf, size_t size)
 }
 
 // Copy all data from fd_in to fd_out.
-bool
-copy_fd(int fd_in, int fd_out, bool fd_in_is_file)
+bool copy_fd(int fd_in, int fd_out, bool fd_in_is_file)
 {
   ssize_t n;
   char buf[READ_BUFFER_SIZE];
@@ -107,8 +104,7 @@ copy_fd(int fd_in, int fd_out, bool fd_in_is_file)
 
 #ifndef HAVE_MKSTEMP
 // Cheap and nasty mkstemp replacement.
-int
-mkstemp(char* name_template)
+int mkstemp(char* name_template)
 {
 #  ifdef __GNUC__
 #    pragma GCC diagnostic push
@@ -123,8 +119,7 @@ mkstemp(char* name_template)
 #endif
 
 #ifndef _WIN32
-static mode_t
-get_umask()
+static mode_t get_umask()
 {
   static bool mask_retrieved = false;
   static mode_t mask;
@@ -139,8 +134,7 @@ get_umask()
 
 // Clone a file from src to dest. If via_tmp_file is true, the file is cloned
 // to a temporary file and then renamed to dest.
-bool
-clone_file(const char* src, const char* dest, bool via_tmp_file)
+bool clone_file(const char* src, const char* dest, bool via_tmp_file)
 {
 #ifdef FILE_CLONING_SUPPORTED
 
@@ -205,8 +199,7 @@ clone_file(const char* src, const char* dest, bool via_tmp_file)
 
 // Copy a file from src to dest. If via_tmp_file is true, the file is copied to
 // a temporary file and then renamed to dest.
-bool
-copy_file(const char* src, const char* dest, bool via_tmp_file)
+bool copy_file(const char* src, const char* dest, bool via_tmp_file)
 {
   bool result = false;
 
@@ -247,8 +240,7 @@ copy_file(const char* src, const char* dest, bool via_tmp_file)
 }
 
 // Run copy_file() and, if successful, delete the source file.
-bool
-move_file(const char* src, const char* dest)
+bool move_file(const char* src, const char* dest)
 {
   bool ok = copy_file(src, dest, false);
   if (ok) {
@@ -258,8 +250,7 @@ move_file(const char* src, const char* dest)
 }
 
 // Return a static string with the current hostname.
-const char*
-get_hostname()
+const char* get_hostname()
 {
   static char hostname[260] = "";
 
@@ -332,8 +323,7 @@ get_hostname()
 
 // Return a string to be passed to mkstemp to create a temporary file. Also
 // tries to cope with NFS by adding the local hostname.
-const char*
-tmp_string()
+const char* tmp_string()
 {
   static char* ret;
   if (!ret) {
@@ -343,8 +333,7 @@ tmp_string()
 }
 
 // Construct a string according to a format. Caller frees.
-char*
-format(const char* format, ...)
+char* format(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -363,8 +352,7 @@ format(const char* format, ...)
 
 // Construct a hexadecimal string representing binary data. The buffer must
 // hold at least 2 * size + 1 bytes.
-void
-format_hex(const uint8_t* data, size_t size, char* buffer)
+void format_hex(const uint8_t* data, size_t size, char* buffer)
 {
   for (size_t i = 0; i < size; i++) {
     sprintf(&buffer[i * 2], "%02x", (unsigned)data[i]);
@@ -373,8 +361,7 @@ format_hex(const uint8_t* data, size_t size, char* buffer)
 }
 
 // This is like strdup() but dies if the malloc fails.
-char*
-x_strdup(const char* s)
+char* x_strdup(const char* s)
 {
   char* ret = strdup(s);
   if (!ret) {
@@ -384,8 +371,7 @@ x_strdup(const char* s)
 }
 
 // This is like strndup() but dies if the malloc fails.
-char*
-x_strndup(const char* s, size_t n)
+char* x_strndup(const char* s, size_t n)
 {
 #ifndef HAVE_STRNDUP
   if (!s) {
@@ -410,8 +396,7 @@ x_strndup(const char* s, size_t n)
 }
 
 // This is like malloc() but dies if the malloc fails.
-void*
-x_malloc(size_t size)
+void* x_malloc(size_t size)
 {
   if (size == 0) {
     // malloc() may return NULL if size is zero, so always do this to make sure
@@ -426,8 +411,7 @@ x_malloc(size_t size)
 }
 
 // This is like realloc() but dies if the malloc fails.
-void*
-x_realloc(void* ptr, size_t size)
+void* x_realloc(void* ptr, size_t size)
 {
   if (!ptr) {
     return x_malloc(size);
@@ -440,8 +424,7 @@ x_realloc(void* ptr, size_t size)
 }
 
 // This is like setenv.
-void
-x_setenv(const char* name, const char* value)
+void x_setenv(const char* name, const char* value)
 {
 #ifdef HAVE_SETENV
   setenv(name, value, true);
@@ -451,8 +434,7 @@ x_setenv(const char* name, const char* value)
 }
 
 // This is like unsetenv.
-void
-x_unsetenv(const char* name)
+void x_unsetenv(const char* name)
 {
 #ifdef HAVE_UNSETENV
   unsetenv(name);
@@ -463,8 +445,7 @@ x_unsetenv(const char* name)
 
 // Construct a string according to the format and store it in *ptr. The
 // original *ptr is then freed.
-void
-reformat(char** ptr, const char* format, ...)
+void reformat(char** ptr, const char* format, ...)
 {
   char* saved = *ptr;
   *ptr = nullptr;
@@ -482,8 +463,7 @@ reformat(char** ptr, const char* format, ...)
 }
 
 // Return the dir name of a file - caller frees.
-char*
-x_dirname(const char* path)
+char* x_dirname(const char* path)
 {
   char* s = x_strdup(path);
   char* p = strrchr(s, '/');
@@ -507,8 +487,7 @@ x_dirname(const char* path)
 // Return the file extension (including the dot) of a path as a pointer into
 // path. If path has no file extension, the empty string and the end of path is
 // returned.
-const char*
-get_extension(const char* path)
+const char* get_extension(const char* path)
 {
   size_t len = strlen(path);
   for (const char* p = &path[len - 1]; p >= path; --p) {
@@ -523,8 +502,7 @@ get_extension(const char* path)
 }
 
 // Format a size as a human-readable string. Caller frees.
-char*
-format_human_readable_size(uint64_t v)
+char* format_human_readable_size(uint64_t v)
 {
   char* s;
   if (v >= 1000 * 1000 * 1000) {
@@ -536,8 +514,7 @@ format_human_readable_size(uint64_t v)
 }
 
 // Format a size as a parsable string. Caller frees.
-char*
-format_parsable_size_with_suffix(uint64_t size)
+char* format_parsable_size_with_suffix(uint64_t size)
 {
   char* s;
   if (size >= 1000 * 1000 * 1000) {
@@ -553,8 +530,7 @@ format_parsable_size_with_suffix(uint64_t size)
 // Parse a "size value", i.e. a string that can end in k, M, G, T (10-based
 // suffixes) or Ki, Mi, Gi, Ti (2-based suffixes). For backward compatibility,
 // K is also recognized as a synonym of k.
-bool
-parse_size_with_suffix(const char* str, uint64_t* size)
+bool parse_size_with_suffix(const char* str, uint64_t* size)
 {
   errno = 0;
 
@@ -598,8 +574,7 @@ parse_size_with_suffix(const char* str, uint64_t* size)
 #if !defined(_WIN32) && !defined(HAVE_LOCALTIME_R)
 // localtime_r replacement. (Mingw-w64 has an inline localtime_r which is not
 // detected by AC_CHECK_FUNCS.)
-struct tm*
-localtime_r(const time_t* timep, struct tm* result)
+struct tm* localtime_r(const time_t* timep, struct tm* result)
 {
   struct tm* tm = localtime(timep);
   if (tm) {
@@ -614,8 +589,7 @@ localtime_r(const time_t* timep, struct tm* result)
 
 #ifndef HAVE_STRTOK_R
 // strtok_r replacement.
-char*
-strtok_r(char* str, const char* delim, char** saveptr)
+char* strtok_r(char* str, const char* delim, char** saveptr)
 {
   if (!str) {
     str = *saveptr;
@@ -638,8 +612,7 @@ strtok_r(char* str, const char* delim, char** saveptr)
 
 // Create an empty temporary file. *fname will be reallocated and set to the
 // resulting filename. Returns an open file descriptor to the file.
-int
-create_tmp_fd(char** fname)
+int create_tmp_fd(char** fname)
 {
   char* tmpl = format("%s.%s", *fname, tmp_string());
   int fd = mkstemp(tmpl);
@@ -669,8 +642,7 @@ create_tmp_fd(char** fname)
 
 // Create an empty temporary file. *fname will be reallocated and set to the
 // resulting filename. Returns an open FILE*.
-FILE*
-create_tmp_file(char** fname, const char* mode)
+FILE* create_tmp_file(char** fname, const char* mode)
 {
   FILE* file = fdopen(create_tmp_fd(fname), mode);
   if (!file) {
@@ -680,8 +652,7 @@ create_tmp_file(char** fname, const char* mode)
 }
 
 // Return current user's home directory, or NULL if it can't be determined.
-const char*
-get_home_directory()
+const char* get_home_directory()
 {
   const char* p = getenv("HOME");
   if (p) {
@@ -705,8 +676,7 @@ get_home_directory()
 }
 
 // Check whether s1 and s2 have the same executable name.
-bool
-same_executable_name(const char* s1, const char* s2)
+bool same_executable_name(const char* s1, const char* s2)
 {
 #ifdef _WIN32
   bool eq = strcasecmp(s1, s2) == 0;
@@ -722,8 +692,7 @@ same_executable_name(const char* s1, const char* s2)
 }
 
 // Return whether the argument is a full path.
-bool
-is_full_path(const char* path)
+bool is_full_path(const char* path)
 {
   if (strchr(path, '/')) {
     return true;
@@ -738,8 +707,7 @@ is_full_path(const char* path)
 
 // Update the modification time of a file in the cache to save it from LRU
 // cleanup.
-void
-update_mtime(const char* path)
+void update_mtime(const char* path)
 {
 #ifdef HAVE_UTIMES
   utimes(path, nullptr);
@@ -750,8 +718,7 @@ update_mtime(const char* path)
 
 // If exit() already has been called, call _exit(), otherwise exit(). This is
 // used to avoid calling exit() inside an atexit handler.
-void
-x_exit(int status)
+void x_exit(int status)
 {
   static bool first_time = true;
   if (first_time) {
@@ -763,8 +730,7 @@ x_exit(int status)
 }
 
 // Rename oldpath to newpath (deleting newpath).
-int
-x_rename(const char* oldpath, const char* newpath)
+int x_rename(const char* oldpath, const char* newpath)
 {
 #ifndef _WIN32
   return rename(oldpath, newpath);
@@ -810,8 +776,7 @@ x_rename(const char* oldpath, const char* newpath)
 
 // Remove path, NFS hazardous. Use only for temporary files that will not exist
 // on other systems. That is, the path should include tmp_string().
-int
-tmp_unlink(const char* path)
+int tmp_unlink(const char* path)
 {
   cc_log("Unlink %s", path);
   int rc = unlink(path);
@@ -821,8 +786,7 @@ tmp_unlink(const char* path)
   return rc;
 }
 
-static int
-do_x_unlink(const char* path, bool log_failure)
+static int do_x_unlink(const char* path, bool log_failure)
 {
   int saved_errno = 0;
 
@@ -858,23 +822,20 @@ out:
 }
 
 // Remove path, NFS safe, log both successes and failures.
-int
-x_unlink(const char* path)
+int x_unlink(const char* path)
 {
   return do_x_unlink(path, true);
 }
 
 // Remove path, NFS safe, only log successes.
-int
-x_try_unlink(const char* path)
+int x_try_unlink(const char* path)
 {
   return do_x_unlink(path, false);
 }
 
 // Reads the content of a file. Size hint 0 means no hint. Returns true on
 // success, otherwise false.
-bool
-read_file(const char* path, size_t size_hint, char** data, size_t* size)
+bool read_file(const char* path, size_t size_hint, char** data, size_t* size)
 {
   if (size_hint == 0) {
     size_hint = Stat::stat(path, Stat::OnError::log).size();
@@ -921,8 +882,7 @@ read_file(const char* path, size_t size_hint, char** data, size_t* size)
 
 // Return the content (with NUL termination) of a text file, or NULL on error.
 // Caller frees. Size hint 0 means no hint.
-char*
-read_text_file(const char* path, size_t size_hint)
+char* read_text_file(const char* path, size_t size_hint)
 {
   size_t size;
   char* data;
@@ -935,8 +895,7 @@ read_text_file(const char* path, size_t size_hint)
   }
 }
 
-static bool
-expand_variable(const char** str, char** result, char** errmsg)
+static bool expand_variable(const char** str, char** result, char** errmsg)
 {
   assert(**str == '$');
 
@@ -986,8 +945,7 @@ expand_variable(const char** str, char** result, char** errmsg)
 // variable, in a string. Caller frees. If one of the environment variables
 // doesn't exist, NULL will be returned and *errmsg will be an appropriate
 // error message (caller frees).
-char*
-subst_env_in_string(const char* str, char** errmsg)
+char* subst_env_in_string(const char* str, char** errmsg)
 {
   assert(errmsg);
   *errmsg = nullptr;
@@ -1009,8 +967,7 @@ subst_env_in_string(const char* str, char** errmsg)
   return result;
 }
 
-void
-set_cloexec_flag(int fd)
+void set_cloexec_flag(int fd)
 {
 #ifndef _WIN32
   int flags = fcntl(fd, F_GETFD, 0);
@@ -1022,8 +979,7 @@ set_cloexec_flag(int fd)
 #endif
 }
 
-double
-time_seconds()
+double time_seconds()
 {
 #ifdef HAVE_GETTIMEOFDAY
   struct timeval tv;
@@ -1034,8 +990,7 @@ time_seconds()
 #endif
 }
 
-std::string
-from_cstr(const char* str)
+std::string from_cstr(const char* str)
 {
   return str ? str : std::string{};
 }

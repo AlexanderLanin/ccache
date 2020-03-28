@@ -22,8 +22,7 @@ namespace std {
 
 #if __cplusplus < 201402L
 template<typename T, typename... TArgs>
-inline unique_ptr<T>
-make_unique(TArgs&&... args)
+inline unique_ptr<T> make_unique(TArgs&&... args)
 {
   return unique_ptr<T>(new T(std::forward<TArgs>(args)...));
 }

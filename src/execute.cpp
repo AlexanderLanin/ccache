@@ -29,16 +29,14 @@
 using nonstd::string_view;
 
 #ifdef _WIN32
-int
-execute(char** argv, int fd_out, int fd_err, pid_t* /*pid*/)
+int execute(char** argv, int fd_out, int fd_err, pid_t* /*pid*/)
 {
   return win32execute(argv[0], argv, 1, fd_out, fd_err);
 }
 
 // Re-create a win32 command line string based on **argv.
 // http://msdn.microsoft.com/en-us/library/17w5ykft.aspx
-char*
-win32argvtos(char* prefix, char** argv, int* length)
+char* win32argvtos(char* prefix, char** argv, int* length)
 {
   int i = 0;
   int k = 0;
@@ -102,8 +100,7 @@ win32argvtos(char* prefix, char** argv, int* length)
   return str;
 }
 
-char*
-win32getshell(char* path)
+char* win32getshell(char* path)
 {
   char* path_env;
   char* sh = NULL;
@@ -128,11 +125,10 @@ win32getshell(char* path)
   return sh;
 }
 
-void
-add_exe_ext_if_no_to_fullpath(char* full_path_win_ext,
-                              size_t max_size,
-                              const char* ext,
-                              const char* path)
+void add_exe_ext_if_no_to_fullpath(char* full_path_win_ext,
+                                   size_t max_size,
+                                   const char* ext,
+                                   const char* path)
 {
   if (!ext
       || (!str_eq(".exe", ext) && !str_eq(".sh", ext) && !str_eq(".bat", ext)
@@ -143,8 +139,7 @@ add_exe_ext_if_no_to_fullpath(char* full_path_win_ext,
   }
 }
 
-int
-win32execute(
+int win32execute(
   char* path, char** argv, int doreturn, int fd_stdout, int fd_stderr)
 {
   PROCESS_INFORMATION pi;
@@ -257,8 +252,7 @@ win32execute(
 
 // Execute a compiler backend, capturing all output to the given paths the full
 // path to the compiler to run is in argv[0].
-int
-execute(char** argv, int fd_out, int fd_err, pid_t* pid)
+int execute(char** argv, int fd_out, int fd_err, pid_t* pid)
 {
   cc_log_argv("Executing ", argv);
 
@@ -301,8 +295,9 @@ execute(char** argv, int fd_out, int fd_err, pid_t* pid)
 
 // Find an executable by name in $PATH. Exclude any that are links to
 // exclude_name.
-char*
-find_executable(const Context& ctx, const char* name, const char* exclude_name)
+char* find_executable(const Context& ctx,
+                      const char* name,
+                      const char* exclude_name)
 {
   if (Util::is_absolute_path(name)) {
     return x_strdup(name);
@@ -320,10 +315,9 @@ find_executable(const Context& ctx, const char* name, const char* exclude_name)
   return find_executable_in_path(name, exclude_name, path);
 }
 
-char*
-find_executable_in_path(const char* name,
-                        const char* exclude_name,
-                        const char* path)
+char* find_executable_in_path(const char* name,
+                              const char* exclude_name,
+                              const char* path)
 {
   if (!path) {
     return nullptr;
@@ -376,8 +370,7 @@ find_executable_in_path(const char* name,
   return nullptr;
 }
 
-void
-print_command(FILE* fp, char** argv)
+void print_command(FILE* fp, char** argv)
 {
   for (int i = 0; argv[i]; i++) {
     fprintf(fp, "%s%s", (i == 0) ? "" : " ", argv[i]);
@@ -385,8 +378,7 @@ print_command(FILE* fp, char** argv)
   fprintf(fp, "\n");
 }
 
-char*
-format_command(const char* const* argv)
+char* format_command(const char* const* argv)
 {
   size_t len = 0;
   for (int i = 0; argv[i]; i++) {

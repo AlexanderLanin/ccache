@@ -24,22 +24,19 @@ NullCompressor::NullCompressor(FILE* stream) : m_stream(stream)
 {
 }
 
-int8_t
-NullCompressor::actual_compression_level() const
+int8_t NullCompressor::actual_compression_level() const
 {
   return 0;
 }
 
-void
-NullCompressor::write(const void* data, size_t count)
+void NullCompressor::write(const void* data, size_t count)
 {
   if (fwrite(data, 1, count, m_stream) != count) {
     throw Error("failed to write to uncompressed stream");
   }
 }
 
-void
-NullCompressor::finalize()
+void NullCompressor::finalize()
 {
   if (fflush(m_stream) != 0) {
     throw Error("failed to finalize uncompressed stream");

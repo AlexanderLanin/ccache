@@ -77,9 +77,7 @@ private:
   Checksum m_checksum;
 };
 
-template<typename T>
-inline void
-CacheEntryWriter::write(T value)
+template<typename T> inline void CacheEntryWriter::write(T value)
 {
   uint8_t buffer[sizeof(T)];
   Util::int_to_big_endian(value, buffer);

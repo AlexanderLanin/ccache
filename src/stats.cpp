@@ -183,22 +183,19 @@ static struct
    FLAG_NOZERO | FLAG_NEVER},
   {STATS_NONE, nullptr, nullptr, nullptr, 0}};
 
-static char*
-format_size(uint64_t size)
+static char* format_size(uint64_t size)
 {
   char* s = format_human_readable_size(size);
   reformat(&s, "%11s", s);
   return s;
 }
 
-static char*
-format_size_times_1024(uint64_t size)
+static char* format_size_times_1024(uint64_t size)
 {
   return format_size(size * 1024);
 }
 
-static char*
-format_timestamp(uint64_t timestamp)
+static char* format_timestamp(uint64_t timestamp)
 {
   if (timestamp > 0) {
     struct tm tm;
@@ -212,8 +209,7 @@ format_timestamp(uint64_t timestamp)
 }
 
 // Parse a stats file from a buffer, adding to the counters.
-static void
-parse_stats(Counters& counters, const char* buf)
+static void parse_stats(Counters& counters, const char* buf)
 {
   size_t i = 0;
   const char* p = buf;
@@ -230,8 +226,7 @@ parse_stats(Counters& counters, const char* buf)
 }
 
 // Write out a stats file.
-void
-stats_write(const std::string& path, const Counters& counters)
+void stats_write(const std::string& path, const Counters& counters)
 {
   AtomicFile file(path, AtomicFile::Mode::text);
   for (size_t i = 0; i < counters.size(); ++i) {
@@ -246,8 +241,7 @@ stats_write(const std::string& path, const Counters& counters)
   }
 }
 
-static double
-stats_hit_rate(const Counters& counters)
+static double stats_hit_rate(const Counters& counters)
 {
   unsigned direct = counters[STATS_CACHEHIT_DIR];
   unsigned preprocessed = counters[STATS_CACHEHIT_CPP];
@@ -289,8 +283,7 @@ stats_collect(const Config& config, Counters& counters, time_t* last_updated)
 
 // Record that a number of bytes and files have been added to the cache. Size
 // is in bytes.
-void
-stats_update_size(Counters& counters, int64_t size, int files)
+void stats_update_size(Counters& counters, int64_t size, int files)
 {
   if (size == 0 && files == 0) {
     return;
@@ -301,8 +294,7 @@ stats_update_size(Counters& counters, int64_t size, int files)
 }
 
 // Read in the stats from one directory and add to the counters.
-void
-stats_read(const std::string& sfile, Counters& counters)
+void stats_read(const std::string& sfile, Counters& counters)
 {
   char* data = read_text_file(sfile.c_str(), 1024);
   if (data) {
@@ -312,10 +304,9 @@ stats_read(const std::string& sfile, Counters& counters)
 }
 
 // Write counter updates in updates to sfile.
-void
-stats_flush_to_file(const Config& config,
-                    std::string sfile,
-                    const Counters& updates)
+void stats_flush_to_file(const Config& config,
+                         std::string sfile,
+                         const Counters& updates)
 {
   if (updates.all_zero()) {
     return;
@@ -390,24 +381,21 @@ stats_flush_to_file(const Config& config,
 }
 
 // Write counter updates in counter_updates to disk.
-void
-stats_flush(void* context)
+void stats_flush(void* context)
 {
   const Context& ctx = *static_cast<Context*>(context);
   stats_flush_to_file(ctx.config, ctx.stats_file, ctx.counter_updates);
 }
 
 // Update a normal stat.
-void
-stats_update(Context& ctx, enum stats stat)
+void stats_update(Context& ctx, enum stats stat)
 {
   assert(stat > STATS_NONE && stat < STATS_END);
   ctx.counter_updates[stat] += 1;
 }
 
 // Sum and display the total stats for all cache dirs.
-void
-stats_summary(const Config& config)
+void stats_summary(const Config& config)
 {
   Counters counters;
   time_t last_updated;
@@ -465,8 +453,7 @@ stats_summary(const Config& config)
 }
 
 // Print machine-parsable (tab-separated) statistics counters.
-void
-stats_print(const Config& config)
+void stats_print(const Config& config)
 {
   Counters counters;
   time_t last_updated;
@@ -482,8 +469,7 @@ stats_print(const Config& config)
 }
 
 // Zero all the stats structures.
-void
-stats_zero(const Config& config)
+void stats_zero(const Config& config)
 {
   char* fname = format("%s/stats", config.cache_dir().c_str());
   x_unlink(fname);
@@ -515,10 +501,9 @@ stats_zero(const Config& config)
 }
 
 // Get the per-directory limits.
-void
-stats_get_obsolete_limits(const char* dir,
-                          unsigned* maxfiles,
-                          uint64_t* maxsize)
+void stats_get_obsolete_limits(const char* dir,
+                               unsigned* maxfiles,
+                               uint64_t* maxsize)
 {
   Counters counters;
   char* sname = format("%s/stats", dir);
@@ -529,8 +514,7 @@ stats_get_obsolete_limits(const char* dir,
 }
 
 // Set the per-directory sizes.
-void
-stats_set_sizes(const char* dir, unsigned num_files, uint64_t total_size)
+void stats_set_sizes(const char* dir, unsigned num_files, uint64_t total_size)
 {
   Counters counters;
   char* statsfile = format("%s/stats", dir);
@@ -545,8 +529,7 @@ stats_set_sizes(const char* dir, unsigned num_files, uint64_t total_size)
 }
 
 // Count directory cleanup run.
-void
-stats_add_cleanup(const char* dir, unsigned count)
+void stats_add_cleanup(const char* dir, unsigned count)
 {
   Counters counters;
   char* statsfile = format("%s/stats", dir);

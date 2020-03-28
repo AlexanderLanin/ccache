@@ -195,14 +195,12 @@ add_prefix(const Context& ctx, struct args* args, const char* prefix_command)
 static void failed(enum stats stat = STATS_NONE,
                    optional<int> exit_code = nullopt) ATTR_NORETURN;
 
-static void
-failed(enum stats stat, optional<int> exit_code)
+static void failed(enum stats stat, optional<int> exit_code)
 {
   throw Failure(stat, exit_code);
 }
 
-static const char*
-temp_dir(const Context& ctx)
+static const char* temp_dir(const Context& ctx)
 {
   static const char* path = nullptr;
   if (path) {
@@ -215,16 +213,14 @@ temp_dir(const Context& ctx)
   return path;
 }
 
-void
-block_signals()
+void block_signals()
 {
 #ifndef _WIN32
   sigprocmask(SIG_BLOCK, &fatal_signal_set, nullptr);
 #endif
 }
 
-void
-unblock_signals()
+void unblock_signals()
 {
 #ifndef _WIN32
   sigset_t empty;
@@ -233,8 +229,7 @@ unblock_signals()
 #endif
 }
 
-static void
-add_pending_tmp_file(const char* path)
+static void add_pending_tmp_file(const char* path)
 {
   block_signals();
   auto e = static_cast<pending_tmp_file*>(x_malloc(sizeof(pending_tmp_file)));
@@ -244,8 +239,7 @@ add_pending_tmp_file(const char* path)
   unblock_signals();
 }
 
-static void
-do_clean_up_pending_tmp_files()
+static void do_clean_up_pending_tmp_files()
 {
   struct pending_tmp_file* p = pending_tmp_files;
   while (p) {
@@ -257,8 +251,7 @@ do_clean_up_pending_tmp_files()
   }
 }
 
-static void
-clean_up_pending_tmp_files()
+static void clean_up_pending_tmp_files()
 {
   block_signals();
   do_clean_up_pending_tmp_files();
@@ -266,8 +259,7 @@ clean_up_pending_tmp_files()
 }
 
 #ifndef _WIN32
-static void
-signal_handler(int signum)
+static void signal_handler(int signum)
 {
   // Unregister handler for this signal so that we can send the signal to
   // ourselves at the end of the handler.
@@ -292,8 +284,7 @@ signal_handler(int signum)
   kill(getpid(), signum);
 }
 
-static void
-register_signal_handler(int signum)
+static void register_signal_handler(int signum)
 {
   struct sigaction act;
   memset(&act, 0, sizeof(act));
@@ -305,8 +296,7 @@ register_signal_handler(int signum)
   sigaction(signum, &act, nullptr);
 }
 
-static void
-set_up_signal_handlers()
+static void set_up_signal_handlers()
 {
   sigemptyset(&fatal_signal_set);
   sigaddset(&fatal_signal_set, SIGINT);
@@ -329,8 +319,7 @@ set_up_signal_handlers()
 }
 #endif // _WIN32
 
-static void
-clean_up_internal_tempdir(const Context& ctx)
+static void clean_up_internal_tempdir(const Context& ctx)
 {
   time_t now = time(nullptr);
   auto st = Stat::stat(ctx.config.cache_dir(), Stat::OnError::log);
@@ -363,14 +352,12 @@ clean_up_internal_tempdir(const Context& ctx)
   closedir(dir);
 }
 
-static void
-fclose_exitfn(void* context)
+static void fclose_exitfn(void* context)
 {
   fclose((FILE*)context);
 }
 
-static void
-dump_debug_log_buffer_exitfn(void* context)
+static void dump_debug_log_buffer_exitfn(void* context)
 {
   Context& ctx = *static_cast<Context*>(context);
   if (!ctx.config.debug()) {
@@ -381,13 +368,12 @@ dump_debug_log_buffer_exitfn(void* context)
   cc_dump_debug_log_buffer(path.c_str());
 }
 
-static void
-init_hash_debug(const Context& ctx,
-                struct hash* hash,
-                const char* obj_path,
-                char type,
-                const char* section_name,
-                FILE* debug_text_file)
+static void init_hash_debug(const Context& ctx,
+                            struct hash* hash,
+                            const char* obj_path,
+                            char type,
+                            const char* section_name,
+                            FILE* debug_text_file)
 {
   if (!ctx.config.debug()) {
     return;
@@ -404,8 +390,7 @@ init_hash_debug(const Context& ctx,
   free(path);
 }
 
-static GuessedCompiler
-guess_compiler(const char* path)
+static GuessedCompiler guess_compiler(const char* path)
 {
   string_view name = Util::base_name(path);
   GuessedCompiler result = GuessedCompiler::unknown;
@@ -421,12 +406,11 @@ guess_compiler(const char* path)
   return result;
 }
 
-static bool
-do_remember_include_file(Context& ctx,
-                         std::string path,
-                         struct hash* cpp_hash,
-                         bool system,
-                         struct hash* depend_mode_hash)
+static bool do_remember_include_file(Context& ctx,
+                                     std::string path,
+                                     struct hash* cpp_hash,
+                                     bool system,
+                                     struct hash* depend_mode_hash)
 {
   struct hash* fhash = nullptr;
   bool is_pch = false;
@@ -587,12 +571,11 @@ do_remember_include_file(Context& ctx,
 // This function hashes an include file and stores the path and hash in the
 // global g_included_files variable. If the include file is a PCH, cpp_hash is
 // also updated.
-static void
-remember_include_file(Context& ctx,
-                      const std::string& path,
-                      struct hash* cpp_hash,
-                      bool system,
-                      struct hash* depend_mode_hash)
+static void remember_include_file(Context& ctx,
+                                  const std::string& path,
+                                  struct hash* cpp_hash,
+                                  bool system,
+                                  struct hash* depend_mode_hash)
 {
   if (!do_remember_include_file(ctx, path, cpp_hash, system, depend_mode_hash)
       && ctx.config.direct_mode()) {
@@ -601,8 +584,7 @@ remember_include_file(Context& ctx,
   }
 }
 
-static void
-print_included_files(const Context& ctx, FILE* fp)
+static void print_included_files(const Context& ctx, FILE* fp)
 {
   for (const auto& item : ctx.included_files) {
     fprintf(fp, "%s\n", item.first.c_str());
@@ -611,8 +593,7 @@ print_included_files(const Context& ctx, FILE* fp)
 
 // Make a relative path from current working directory to `path` if `path` is
 // under the base directory.
-static std::string
-make_relative_path(const Context& ctx, string_view path)
+static std::string make_relative_path(const Context& ctx, string_view path)
 {
   if (ctx.config.base_dir().empty()
       || !Util::starts_with(path, ctx.config.base_dir())) {
@@ -673,11 +654,10 @@ make_relative_path(const Context& ctx, string_view path)
 //   when computing the hash sum.
 // - Stores the paths and hashes of included files in the global variable
 //   g_included_files.
-static bool
-process_preprocessed_file(Context& ctx,
-                          struct hash* hash,
-                          const char* path,
-                          bool pump)
+static bool process_preprocessed_file(Context& ctx,
+                                      struct hash* hash,
+                                      const char* path,
+                                      bool pump)
 {
   char* data;
   size_t size;
@@ -869,8 +849,7 @@ process_preprocessed_file(Context& ctx,
 }
 
 // Replace absolute paths with relative paths in the provided dependency file.
-static void
-use_relative_paths_in_depfile(const Context& ctx)
+static void use_relative_paths_in_depfile(const Context& ctx)
 {
   const char* depfile = ctx.args_info.output_dep.c_str();
 
@@ -960,8 +939,7 @@ out:
 
 // Extract the used includes from the dependency file. Note that we cannot
 // distinguish system headers from other includes here.
-static struct digest*
-result_name_from_depfile(Context& ctx, struct hash* hash)
+static struct digest* result_name_from_depfile(Context& ctx, struct hash* hash)
 {
   FILE* f = fopen(ctx.args_info.output_dep.c_str(), "r");
   if (!f) {
@@ -1010,8 +988,7 @@ result_name_from_depfile(Context& ctx, struct hash* hash)
 }
 
 // Send cached stderr, if any, to stderr.
-static void
-send_cached_stderr(const char* path_stderr)
+static void send_cached_stderr(const char* path_stderr)
 {
   int fd_stderr = open(path_stderr, O_RDONLY | O_BINARY);
   if (fd_stderr != -1) {
@@ -1021,8 +998,7 @@ send_cached_stderr(const char* path_stderr)
 }
 
 // Create or update the manifest file.
-static void
-update_manifest_file(Context& ctx)
+static void update_manifest_file(Context& ctx)
 {
   if (!ctx.config.direct_mode() || ctx.config.read_only()
       || ctx.config.read_only_direct()) {
@@ -1062,8 +1038,8 @@ update_manifest_file(Context& ctx)
   MTR_END("manifest", "manifest_put");
 }
 
-static void
-update_cached_result_globals(Context& ctx, struct digest* result_name)
+static void update_cached_result_globals(Context& ctx,
+                                         struct digest* result_name)
 {
   char result_name_string[DIGEST_STRING_BUFFER_SIZE];
   digest_as_string(result_name, result_name_string);
@@ -1076,8 +1052,7 @@ update_cached_result_globals(Context& ctx, struct digest* result_name)
     fmt::format("{}/{}/stats", ctx.config.cache_dir(), result_name_string[0]);
 }
 
-static bool
-create_cachedir_tag(nonstd::string_view dir)
+static bool create_cachedir_tag(nonstd::string_view dir)
 {
   constexpr char cachedir_tag[] =
     "Signature: 8a477f597d28d172789f06886806bc55\n"
@@ -1106,11 +1081,10 @@ create_cachedir_tag(nonstd::string_view dir)
 }
 
 // Run the real compiler and put the result in cache.
-static void
-to_cache(Context& ctx,
-         struct args* args,
-         struct args* depend_extra_args,
-         struct hash* depend_mode_hash)
+static void to_cache(Context& ctx,
+                     struct args* args,
+                     struct args* depend_extra_args,
+                     struct hash* depend_mode_hash)
 {
   args_add(args, "-o");
   args_add(args, ctx.args_info.output_obj.c_str());
@@ -1460,12 +1434,11 @@ get_result_name_from_cpp(Context& ctx, struct args* args, struct hash* hash)
 
 // Hash mtime or content of a file, or the output of a command, according to
 // the CCACHE_COMPILERCHECK setting.
-static void
-hash_compiler(const Context& ctx,
-              struct hash* hash,
-              const Stat& st,
-              const char* path,
-              bool allow_command)
+static void hash_compiler(const Context& ctx,
+                          struct hash* hash,
+                          const Stat& st,
+                          const char* path,
+                          bool allow_command)
 {
   if (ctx.config.compiler_check() == "none") {
     // Do nothing.
@@ -1494,11 +1467,10 @@ hash_compiler(const Context& ctx,
 // If ccbin_st and ccbin are set, they refer to a directory or compiler set
 // with -ccbin/--compiler-bindir. If they are NULL, the compilers are looked up
 // in PATH instead.
-static void
-hash_nvcc_host_compiler(const Context& ctx,
-                        struct hash* hash,
-                        const Stat* ccbin_st,
-                        const char* ccbin)
+static void hash_nvcc_host_compiler(const Context& ctx,
+                                    struct hash* hash,
+                                    const Stat* ccbin_st,
+                                    const char* ccbin)
 {
   // From <http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html>:
   //
@@ -1543,11 +1515,10 @@ hash_nvcc_host_compiler(const Context& ctx,
 }
 
 // Update a hash with information common for the direct and preprocessor modes.
-static void
-hash_common_info(const Context& ctx,
-                 struct args* args,
-                 struct hash* hash,
-                 const ArgsInfo& args_info)
+static void hash_common_info(const Context& ctx,
+                             struct args* args,
+                             struct hash* hash,
+                             const ArgsInfo& args_info)
 {
   hash_string(hash, HASH_PREFIX);
 
@@ -1687,12 +1658,11 @@ hash_common_info(const Context& ctx,
 // Update a hash sum with information specific to the direct and preprocessor
 // modes and calculate the result name. Returns the result name on success,
 // otherwise NULL. Caller frees.
-static struct digest*
-calculate_result_name(Context& ctx,
-                      struct args* args,
-                      struct args* preprocessor_args,
-                      struct hash* hash,
-                      bool direct_mode)
+static struct digest* calculate_result_name(Context& ctx,
+                                            struct args* args,
+                                            struct args* preprocessor_args,
+                                            struct hash* hash,
+                                            bool direct_mode)
 {
   bool found_ccbin = false;
 
@@ -1986,10 +1956,9 @@ calculate_result_name(Context& ctx,
 }
 
 // Try to return the compile result from cache.
-static optional<enum stats>
-from_cache(Context& ctx,
-           enum fromcache_call_mode mode,
-           bool put_result_in_manifest)
+static optional<enum stats> from_cache(Context& ctx,
+                                       enum fromcache_call_mode mode,
+                                       bool put_result_in_manifest)
 {
   // The user might be disabling cache hits.
   if (ctx.config.recache()) {
@@ -2072,8 +2041,7 @@ from_cache(Context& ctx,
 
 // Find the real compiler. We just search the PATH to find an executable of the
 // same name that isn't a link to ourselves.
-static void
-find_compiler(const Context& ctx, char** argv)
+static void find_compiler(const Context& ctx, char** argv)
 {
   // We might be being invoked like "ccache gcc -c foo.c".
   std::string base(Util::base_name(argv[0]));
@@ -2102,8 +2070,7 @@ find_compiler(const Context& ctx, char** argv)
   ctx.orig_args->argv[0] = compiler;
 }
 
-bool
-is_precompiled_header(const char* path)
+bool is_precompiled_header(const char* path)
 {
   const char* ext = get_extension(path);
   char* dir = x_dirname(path);
@@ -2115,8 +2082,7 @@ is_precompiled_header(const char* path)
   return result;
 }
 
-static bool
-color_output_possible()
+static bool color_output_possible()
 {
   const char* term_env = getenv("TERM");
   return isatty(STDERR_FILENO) && term_env && strcasecmp(term_env, "DUMB") != 0;
@@ -2176,12 +2142,11 @@ detect_pch(Context& ctx, const char* option, const char* arg, bool* found_pch)
 //
 // Returns nullopt on success, otherwise the statistics counter that should be
 // incremented.
-optional<enum stats>
-process_args(Context& ctx,
-             struct args* args,
-             struct args** preprocessor_args,
-             struct args** extra_args_to_hash,
-             struct args** compiler_args)
+optional<enum stats> process_args(Context& ctx,
+                                  struct args* args,
+                                  struct args** preprocessor_args,
+                                  struct args** extra_args_to_hash,
+                                  struct args** compiler_args)
 {
   ArgsInfo& args_info = ctx.args_info;
   Config& config = ctx.config;
@@ -3248,8 +3213,7 @@ process_args(Context& ctx,
   return nullopt;
 }
 
-static void
-create_initial_config_file(Config& config)
+static void create_initial_config_file(Config& config)
 {
   if (!Util::create_dir(Util::dir_name(config.primary_config_path()))) {
     return;
@@ -3290,8 +3254,7 @@ create_initial_config_file(Config& config)
 static void* trace_id;
 static char* tmp_trace_file;
 
-static void
-trace_init(char* path)
+static void trace_init(char* path)
 {
   tmp_trace_file = path;
   mtr_init(tmp_trace_file);
@@ -3299,16 +3262,14 @@ trace_init(char* path)
   MTR_INSTANT_C("", "", "time", s);
 }
 
-static void
-trace_start(void)
+static void trace_start(void)
 {
   MTR_META_PROCESS_NAME(MYNAME);
   trace_id = (void*)((long)getpid());
   MTR_START("program", "ccache", trace_id);
 }
 
-static void
-trace_stop(void)
+static void trace_stop(void)
 {
   char* trace_file = format("%s.ccache-trace", output_obj);
   MTR_FINISH("program", "ccache", trace_id);
@@ -3319,8 +3280,7 @@ trace_stop(void)
   free(tmp_trace_file);
 }
 
-static const char*
-tmpdir()
+static const char* tmpdir()
 {
 #  ifndef _WIN32
   const char* tmpdir = getenv("TMPDIR");
@@ -3341,8 +3301,7 @@ tmpdir()
 
 // Read config file(s), populate variables, create configuration file in cache
 // directory if missing, etc.
-static void
-set_up_config(Config& config)
+static void set_up_config(Config& config)
 {
   char* p = getenv("CCACHE_CONFIGPATH");
   if (p) {
@@ -3391,8 +3350,7 @@ set_up_config(Config& config)
 }
 
 // Initialize ccache, must be called once before anything else is run.
-static Context&
-initialize(int argc, char* argv[])
+static Context& initialize(int argc, char* argv[])
 {
   // This object is placed onto the heap so it is available in exit functions
   // which run after main(). It is cleaned up by the last exit function.
@@ -3434,8 +3392,7 @@ initialize(int argc, char* argv[])
 
 // Make a copy of stderr that will not be cached, so things like distcc can
 // send networking errors to it.
-static void
-set_up_uncached_err()
+static void set_up_uncached_err()
 {
   int uncached_fd = dup(2); // The file descriptor is intentionally leaked.
   if (uncached_fd == -1) {
@@ -3451,19 +3408,17 @@ set_up_uncached_err()
   }
 }
 
-static void
-configuration_logger(const std::string& key,
-                     const std::string& value,
-                     const std::string& origin)
+static void configuration_logger(const std::string& key,
+                                 const std::string& value,
+                                 const std::string& origin)
 {
   cc_bulklog(
     "Config: (%s) %s = %s", origin.c_str(), key.c_str(), value.c_str());
 }
 
-static void
-configuration_printer(const std::string& key,
-                      const std::string& value,
-                      const std::string& origin)
+static void configuration_printer(const std::string& key,
+                                  const std::string& value,
+                                  const std::string& origin)
 {
   fmt::print("({}) {} = {}\n", origin, key, value);
 }
@@ -3472,8 +3427,7 @@ static int cache_compilation(int argc, char* argv[]);
 static enum stats do_cache_compilation(Context& ctx, char* argv[]);
 
 // The entry point when invoked to cache a compilation.
-static int
-cache_compilation(int argc, char* argv[])
+static int cache_compilation(int argc, char* argv[])
 {
 #ifndef _WIN32
   set_up_signal_handlers();
@@ -3518,8 +3472,7 @@ cache_compilation(int argc, char* argv[])
   }
 }
 
-static enum stats
-do_cache_compilation(Context& ctx, char* argv[])
+static enum stats do_cache_compilation(Context& ctx, char* argv[])
 {
   if (ctx.actual_cwd.empty()) {
     cc_log("Unable to determine current working directory: %s",
@@ -3752,8 +3705,7 @@ do_cache_compilation(Context& ctx, char* argv[])
 }
 
 // The main program when not doing a compile.
-static int
-handle_main_options(int argc, char* argv[])
+static int handle_main_options(int argc, char* argv[])
 {
   enum longopts {
     DUMP_MANIFEST,
@@ -3944,8 +3896,7 @@ handle_main_options(int argc, char* argv[])
 
 int ccache_main(int argc, char* argv[]);
 
-int
-ccache_main(int argc, char* argv[])
+int ccache_main(int argc, char* argv[])
 {
   try {
     // Check if we are being invoked as "ccache".

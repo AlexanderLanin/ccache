@@ -32,11 +32,10 @@ using nonstd::string_view;
 
 namespace {
 
-void
-get_cache_files_internal(const std::string& dir,
-                         uint8_t level,
-                         const Util::ProgressReceiver& progress_receiver,
-                         std::vector<std::shared_ptr<CacheFile>>& files)
+void get_cache_files_internal(const std::string& dir,
+                              uint8_t level,
+                              const Util::ProgressReceiver& progress_receiver,
+                              std::vector<std::shared_ptr<CacheFile>>& files)
 {
   DIR* d = opendir(dir.c_str());
   if (!d) {
@@ -74,8 +73,7 @@ get_cache_files_internal(const std::string& dir,
   }
 }
 
-size_t
-path_max(const char* path)
+size_t path_max(const char* path)
 {
 #ifdef PATH_MAX
   (void)path;
@@ -93,8 +91,7 @@ path_max(const char* path)
 
 namespace Util {
 
-string_view
-base_name(string_view path)
+string_view base_name(string_view path)
 {
 #ifdef _WIN32
   const char delim[] = "/\\";
@@ -105,15 +102,13 @@ base_name(string_view path)
   return n == std::string::npos ? path : path.substr(n + 1);
 }
 
-std::string
-change_extension(string_view path, string_view new_ext)
+std::string change_extension(string_view path, string_view new_ext)
 {
   string_view without_ext = Util::remove_extension(path);
   return std::string(without_ext).append(new_ext.data(), new_ext.length());
 }
 
-size_t
-common_dir_prefix_length(string_view dir, string_view path)
+size_t common_dir_prefix_length(string_view dir, string_view path)
 {
   if (dir.empty() || path.empty() || dir == "/" || path == "/") {
     return 0;
@@ -142,8 +137,7 @@ common_dir_prefix_length(string_view dir, string_view path)
   return i;
 }
 
-bool
-create_dir(string_view dir)
+bool create_dir(string_view dir)
 {
   std::string dir_str(dir);
   auto st = Stat::stat(dir_str);
@@ -170,8 +164,7 @@ create_dir(string_view dir)
   }
 }
 
-std::pair<int, std::string>
-create_temp_fd(string_view path_prefix)
+std::pair<int, std::string> create_temp_fd(string_view path_prefix)
 {
   char* tmp_path = x_strndup(path_prefix.data(), path_prefix.length());
   int fd = create_tmp_fd(&tmp_path);
@@ -180,8 +173,7 @@ create_temp_fd(string_view path_prefix)
   return {fd, actual_path};
 }
 
-string_view
-dir_name(string_view path)
+string_view dir_name(string_view path)
 {
 #ifdef _WIN32
   const char delim[] = "/\\";
@@ -196,16 +188,14 @@ dir_name(string_view path)
   }
 }
 
-bool
-ends_with(string_view string, string_view suffix)
+bool ends_with(string_view string, string_view suffix)
 {
   return string.ends_with(suffix);
 }
 
-void
-for_each_level_1_subdir(const std::string& cache_dir,
-                        const SubdirVisitor& subdir_visitor,
-                        const ProgressReceiver& progress_receiver)
+void for_each_level_1_subdir(const std::string& cache_dir,
+                             const SubdirVisitor& subdir_visitor,
+                             const ProgressReceiver& progress_receiver)
 {
   for (int i = 0; i <= 0xF; i++) {
     double progress = 1.0 * i / 16;
@@ -218,8 +208,7 @@ for_each_level_1_subdir(const std::string& cache_dir,
   progress_receiver(1.0);
 }
 
-std::string
-get_actual_cwd()
+std::string get_actual_cwd()
 {
   char buffer[PATH_MAX];
   if (getcwd(buffer, sizeof(buffer))) {
@@ -235,8 +224,7 @@ get_actual_cwd()
   }
 }
 
-std::string
-get_apparent_cwd(const std::string& actual_cwd)
+std::string get_apparent_cwd(const std::string& actual_cwd)
 {
 #ifdef _WIN32
   return actual_cwd;
@@ -259,8 +247,7 @@ get_apparent_cwd(const std::string& actual_cwd)
 #endif
 }
 
-string_view
-get_extension(string_view path)
+string_view get_extension(string_view path)
 {
 #ifndef _WIN32
   const char stop_at_chars[] = "./";
@@ -279,16 +266,14 @@ get_extension(string_view path)
   }
 }
 
-void
-get_level_1_files(const std::string& dir,
-                  const ProgressReceiver& progress_receiver,
-                  std::vector<std::shared_ptr<CacheFile>>& files)
+void get_level_1_files(const std::string& dir,
+                       const ProgressReceiver& progress_receiver,
+                       std::vector<std::shared_ptr<CacheFile>>& files)
 {
   get_cache_files_internal(dir, 1, progress_receiver, files);
 }
 
-std::string
-get_relative_path(string_view dir, string_view path)
+std::string get_relative_path(string_view dir, string_view path)
 {
   assert(Util::is_absolute_path(dir));
   assert(Util::is_absolute_path(path));
@@ -331,11 +316,10 @@ get_relative_path(string_view dir, string_view path)
   return result.empty() ? "." : result;
 }
 
-std::string
-get_path_in_cache(string_view cache_dir,
-                  uint32_t levels,
-                  string_view name,
-                  string_view suffix)
+std::string get_path_in_cache(string_view cache_dir,
+                              uint32_t levels,
+                              string_view name,
+                              string_view suffix)
 {
   assert(levels >= 1 && levels <= 8);
   assert(levels < name.length());
@@ -358,8 +342,7 @@ get_path_in_cache(string_view cache_dir,
   return path;
 }
 
-string_view
-get_truncated_base_name(string_view path, size_t max_length)
+string_view get_truncated_base_name(string_view path, size_t max_length)
 {
   string_view input_base = Util::base_name(path);
   size_t dot_pos = input_base.find('.');
@@ -368,8 +351,7 @@ get_truncated_base_name(string_view path, size_t max_length)
   return input_base.substr(0, truncate_pos);
 }
 
-bool
-is_absolute_path(string_view path)
+bool is_absolute_path(string_view path)
 {
 #ifdef _WIN32
   if (path.length() >= 2 && path[1] == ':'
@@ -380,8 +362,7 @@ is_absolute_path(string_view path)
   return !path.empty() && path[0] == '/';
 }
 
-std::string
-normalize_absolute_path(string_view path)
+std::string normalize_absolute_path(string_view path)
 {
   if (!is_absolute_path(path)) {
     return std::string(path);
@@ -439,8 +420,7 @@ normalize_absolute_path(string_view path)
 #endif
 }
 
-int
-parse_int(const std::string& value)
+int parse_int(const std::string& value)
 {
   size_t end;
   long result;
@@ -456,8 +436,7 @@ parse_int(const std::string& value)
   return result;
 }
 
-std::string
-read_file(const std::string& path)
+std::string read_file(const std::string& path)
 {
   std::ifstream file(path);
   if (!file) {
@@ -468,8 +447,7 @@ read_file(const std::string& path)
 }
 
 #ifndef _WIN32
-std::string
-read_link(const std::string& path)
+std::string read_link(const std::string& path)
 {
   size_t buffer_size = path_max(path.c_str());
   std::unique_ptr<char[]> buffer(new char[buffer_size]);
@@ -482,8 +460,7 @@ read_link(const std::string& path)
 }
 #endif
 
-std::string
-real_path(const std::string& path, bool return_empty_on_error)
+std::string real_path(const std::string& path, bool return_empty_on_error)
 {
   const char* c_path = path.c_str();
   size_t buffer_size = path_max(c_path);
@@ -532,20 +509,17 @@ real_path(const std::string& path, bool return_empty_on_error)
   return resolved ? resolved : (return_empty_on_error ? "" : path);
 }
 
-string_view
-remove_extension(string_view path)
+string_view remove_extension(string_view path)
 {
   return path.substr(0, path.length() - get_extension(path).length());
 }
 
-bool
-starts_with(string_view string, string_view prefix)
+bool starts_with(string_view string, string_view prefix)
 {
   return string.starts_with(prefix);
 }
 
-std::string
-strip_whitespace(const std::string& string)
+std::string strip_whitespace(const std::string& string)
 {
   auto is_space = [](int ch) { return std::isspace(ch); };
   auto start = std::find_if_not(string.begin(), string.end(), is_space);
@@ -553,8 +527,7 @@ strip_whitespace(const std::string& string)
   return start < end ? std::string(start, end) : std::string();
 }
 
-std::string
-to_lowercase(const std::string& string)
+std::string to_lowercase(const std::string& string)
 {
   std::string result = string;
   std::transform(result.begin(), result.end(), result.begin(), tolower);
@@ -562,8 +535,7 @@ to_lowercase(const std::string& string)
 }
 
 // Write file data from a string.
-void
-write_file(const std::string& path, const std::string& data, bool binary)
+void write_file(const std::string& path, const std::string& data, bool binary)
 {
   std::ofstream file(path,
                      binary ? std::ios::out | std::ios::binary : std::ios::out);

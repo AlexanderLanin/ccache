@@ -39,8 +39,7 @@ const suite_fn k_legacy_suites[] = {
   nullptr,
 };
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 #ifdef _WIN32
   x_setenv("CCACHE_DETECT_SHEBANG", "1");

@@ -28,8 +28,7 @@ namespace {
 
 #ifndef _WIN32
 
-bool
-do_acquire_posix(const std::string& lockfile, uint32_t staleness_limit)
+bool do_acquire_posix(const std::string& lockfile, uint32_t staleness_limit)
 {
   const uint32_t max_to_sleep = 10000; // Microseconds.
   uint32_t to_sleep = 1000;            // Microseconds.

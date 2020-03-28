@@ -50,8 +50,7 @@ private:
   FILE* m_stream;
 };
 
-inline FILE*
-AtomicFile::stream()
+inline FILE* AtomicFile::stream()
 {
   return m_stream;
 }

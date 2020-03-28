@@ -38,23 +38,20 @@ public:
     other.m_file = nullptr;
   }
 
-  File&
-  operator=(File&& other)
+  File& operator=(File&& other)
   {
     m_file = other.m_file;
     other.m_file = nullptr;
     return *this;
   }
 
-  void
-  open(const std::string& path, const char* mode)
+  void open(const std::string& path, const char* mode)
   {
     close();
     m_file = fopen(path.c_str(), mode);
   }
 
-  void
-  close()
+  void close()
   {
     if (m_file) {
       fclose(m_file);
@@ -72,8 +69,7 @@ public:
     return m_file;
   }
 
-  FILE*
-  get()
+  FILE* get()
   {
     return m_file;
   }

@@ -27,8 +27,7 @@
 #include "framework.hpp"
 #include "util.hpp"
 
-static std::string
-get_root()
+static std::string get_root()
 {
 #ifndef _WIN32
   return "/";
@@ -40,8 +39,7 @@ get_root()
 #endif
 }
 
-static char*
-get_posix_path(const char* path)
+static char* get_posix_path(const char* path)
 {
 #ifndef _WIN32
   return x_strdup(path);

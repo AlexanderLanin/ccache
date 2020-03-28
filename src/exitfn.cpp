@@ -37,8 +37,7 @@ struct nullary_exit_function
 static struct exit_function* exit_functions;
 static struct Context* context_to_clean_up;
 
-static void
-call_nullary_exit_function(void* context)
+static void call_nullary_exit_function(void* context)
 {
   struct nullary_exit_function* p = (struct nullary_exit_function*)context;
   p->function();
@@ -46,8 +45,7 @@ call_nullary_exit_function(void* context)
 }
 
 // Initialize exit functions. Must be called once before exitfn_add* are used.
-void
-exitfn_init()
+void exitfn_init()
 {
   if (atexit(exitfn_call) != 0) {
     fatal("atexit failed: %s", strerror(errno));
@@ -56,8 +54,7 @@ exitfn_init()
 
 // Add a nullary function to be called when ccache exits. Functions are called
 // in reverse order.
-void
-exitfn_add_nullary(void (*function)())
+void exitfn_add_nullary(void (*function)())
 {
   auto p = static_cast<exit_function*>(x_malloc(sizeof(exit_function)));
   p->function = reinterpret_cast<void (*)(void*)>(function);
@@ -66,8 +63,7 @@ exitfn_add_nullary(void (*function)())
 
 // Add a function to be called with a context parameter when ccache exits.
 // Functions are called in LIFO order except when added via exitfn_add_last.
-void
-exitfn_add(void (*function)(void*), void* context)
+void exitfn_add(void (*function)(void*), void* context)
 {
   auto p = static_cast<exit_function*>(x_malloc(sizeof(exit_function)));
   p->function = function;
@@ -79,8 +75,7 @@ exitfn_add(void (*function)(void*), void* context)
 // Add a function to be called with a context parameter when ccache exits. In
 // contrast to exitfn_add, exitfn_add_last sets up the function to be called
 // last.
-void
-exitfn_add_last(void (*function)(void*), void* context)
+void exitfn_add_last(void (*function)(void*), void* context)
 {
   auto p = static_cast<exit_function*>(x_malloc(sizeof(exit_function)));
   p->function = function;
@@ -96,16 +91,14 @@ exitfn_add_last(void (*function)(void*), void* context)
 
 // Remember a Context pointer to delete after all exit functions have run.
 // This function can only be called once.
-void
-exitfn_delete_context(Context* ctx)
+void exitfn_delete_context(Context* ctx)
 {
   assert(context_to_clean_up == nullptr);
   context_to_clean_up = ctx;
 }
 
 // Call added functions.
-void
-exitfn_call()
+void exitfn_call()
 {
   struct exit_function* p = exit_functions;
   exit_functions = nullptr;

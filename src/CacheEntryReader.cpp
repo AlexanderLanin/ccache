@@ -54,8 +54,7 @@ CacheEntryReader::CacheEntryReader(FILE* stream,
   m_decompressor = Decompressor::create_from_type(m_compression_type, stream);
 }
 
-void
-CacheEntryReader::dump_header(FILE* dump_stream)
+void CacheEntryReader::dump_header(FILE* dump_stream)
 {
   fmt::print(dump_stream, "Magic: {:.4}\n", m_magic);
   fmt::print(dump_stream, "Version: {}\n", m_version);
@@ -66,15 +65,13 @@ CacheEntryReader::dump_header(FILE* dump_stream)
   fmt::print(dump_stream, "Content size: {}\n", m_content_size);
 }
 
-void
-CacheEntryReader::read(void* data, size_t count)
+void CacheEntryReader::read(void* data, size_t count)
 {
   m_decompressor->read(data, count);
   m_checksum.update(data, count);
 }
 
-void
-CacheEntryReader::finalize()
+void CacheEntryReader::finalize()
 {
   uint64_t actual_digest = m_checksum.digest();
 

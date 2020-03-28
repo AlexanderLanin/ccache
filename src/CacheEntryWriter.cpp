@@ -43,15 +43,13 @@ CacheEntryWriter::CacheEntryWriter(FILE* stream,
   m_checksum.update(header_bytes, sizeof(header_bytes));
 }
 
-void
-CacheEntryWriter::write(const void* data, size_t count)
+void CacheEntryWriter::write(const void* data, size_t count)
 {
   m_compressor->write(data, count);
   m_checksum.update(data, count);
 }
 
-void
-CacheEntryWriter::finalize()
+void CacheEntryWriter::finalize()
 {
   uint8_t buffer[8];
   Util::int_to_big_endian(m_checksum.digest(), buffer);

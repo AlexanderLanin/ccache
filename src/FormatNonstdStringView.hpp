@@ -29,15 +29,13 @@ namespace fmt {
 template<> struct formatter<nonstd::string_view>
 {
   template<typename ParseContext>
-  constexpr auto
-  parse(ParseContext& ctx) const -> decltype(ctx.begin())
+  constexpr auto parse(ParseContext& ctx) const -> decltype(ctx.begin())
   {
     return ctx.begin();
   }
 
   template<typename FormatContext>
-  auto
-  format(const nonstd::string_view& sv, FormatContext& ctx)
+  auto format(const nonstd::string_view& sv, FormatContext& ctx)
     -> decltype(ctx.out())
   {
     return format_to(ctx.out(), "{}", fmt::string_view(sv.data(), sv.size()));

@@ -97,8 +97,7 @@ static const struct
 
 // Guess the language of a file based on its extension. Returns NULL if the
 // extension is unknown.
-const char*
-language_for_file(const char* fname)
+const char* language_for_file(const char* fname)
 {
   const char* p = get_extension(fname);
   for (int i = 0; extensions[i].extension; i++) {
@@ -110,8 +109,7 @@ language_for_file(const char* fname)
 }
 
 // Return the preprocessed language for a given language, or NULL if unknown.
-const char*
-p_language_for_language(const char* language)
+const char* p_language_for_language(const char* language)
 {
   if (!language) {
     return nullptr;
@@ -126,8 +124,7 @@ p_language_for_language(const char* language)
 
 // Return the default file extension (including dot) for a language, or NULL if
 // unknown.
-const char*
-extension_for_language(const char* language)
+const char* extension_for_language(const char* language)
 {
   if (!language) {
     return nullptr;
@@ -140,14 +137,12 @@ extension_for_language(const char* language)
   return nullptr;
 }
 
-bool
-language_is_supported(const char* language)
+bool language_is_supported(const char* language)
 {
   return p_language_for_language(language) != nullptr;
 }
 
-bool
-language_is_preprocessed(const char* language)
+bool language_is_preprocessed(const char* language)
 {
   const char* p_language = p_language_for_language(language);
   assert(p_language);

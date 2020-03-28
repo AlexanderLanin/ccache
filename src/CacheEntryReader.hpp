@@ -100,47 +100,39 @@ private:
   uint64_t m_content_size;
 };
 
-template<typename T>
-inline void
-CacheEntryReader::read(T& value)
+template<typename T> inline void CacheEntryReader::read(T& value)
 {
   uint8_t buffer[sizeof(T)];
   read(buffer, sizeof(T));
   Util::big_endian_to_int(buffer, value);
 }
 
-inline const uint8_t*
-CacheEntryReader::magic() const
+inline const uint8_t* CacheEntryReader::magic() const
 {
   return m_magic;
 }
 
-inline uint8_t
-CacheEntryReader::version() const
+inline uint8_t CacheEntryReader::version() const
 {
   return m_version;
 }
 
-inline Compression::Type
-CacheEntryReader::compression_type() const
+inline Compression::Type CacheEntryReader::compression_type() const
 {
   return m_compression_type;
 }
 
-inline int8_t
-CacheEntryReader::compression_level() const
+inline int8_t CacheEntryReader::compression_level() const
 {
   return m_compression_level;
 }
 
-inline uint64_t
-CacheEntryReader::payload_size() const
+inline uint64_t CacheEntryReader::payload_size() const
 {
   return m_content_size - 15 - 8;
 }
 
-inline uint64_t
-CacheEntryReader::content_size() const
+inline uint64_t CacheEntryReader::content_size() const
 {
   return m_content_size;
 }

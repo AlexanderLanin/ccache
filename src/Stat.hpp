@@ -98,14 +98,12 @@ inline Stat::Stat() : m_stat{}, m_errno(-1)
 {
 }
 
-inline Stat
-Stat::stat(const std::string& path, OnError on_error)
+inline Stat Stat::stat(const std::string& path, OnError on_error)
 {
   return Stat(::stat, path, on_error);
 }
 
-inline Stat
-Stat::lstat(const std::string& path, OnError on_error)
+inline Stat Stat::lstat(const std::string& path, OnError on_error)
 {
   return Stat(
 #ifdef _WIN32
@@ -122,56 +120,47 @@ inline Stat::operator bool() const
   return m_errno == 0;
 }
 
-inline bool
-Stat::same_inode_as(const Stat& other) const
+inline bool Stat::same_inode_as(const Stat& other) const
 {
   return device() == other.device() && inode() == other.inode();
 }
 
-inline int
-Stat::error_number() const
+inline int Stat::error_number() const
 {
   return m_errno;
 }
 
-inline dev_t
-Stat::device() const
+inline dev_t Stat::device() const
 {
   return m_stat.st_dev;
 }
 
-inline ino_t
-Stat::inode() const
+inline ino_t Stat::inode() const
 {
   return m_stat.st_ino;
 }
 
-inline mode_t
-Stat::mode() const
+inline mode_t Stat::mode() const
 {
   return m_stat.st_mode;
 }
 
-inline time_t
-Stat::ctime() const
+inline time_t Stat::ctime() const
 {
   return m_stat.st_ctime;
 }
 
-inline time_t
-Stat::mtime() const
+inline time_t Stat::mtime() const
 {
   return m_stat.st_mtime;
 }
 
-inline uint64_t
-Stat::size() const
+inline uint64_t Stat::size() const
 {
   return m_stat.st_size;
 }
 
-inline uint64_t
-Stat::size_on_disk() const
+inline uint64_t Stat::size_on_disk() const
 {
 #ifdef _WIN32
   return (size() + 1023) & ~1023;
@@ -180,14 +169,12 @@ Stat::size_on_disk() const
 #endif
 }
 
-inline bool
-Stat::is_directory() const
+inline bool Stat::is_directory() const
 {
   return S_ISDIR(mode());
 }
 
-inline bool
-Stat::is_symlink() const
+inline bool Stat::is_symlink() const
 {
 #ifndef _WIN32
   return S_ISLNK(mode());
@@ -196,8 +183,7 @@ Stat::is_symlink() const
 #endif
 }
 
-inline bool
-Stat::is_regular() const
+inline bool Stat::is_regular() const
 {
   return S_ISREG(mode());
 }

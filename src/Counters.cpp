@@ -26,8 +26,7 @@ Counters::Counters() : m_counters(STATS_END)
 {
 }
 
-unsigned&
-Counters::operator[](size_t index)
+unsigned& Counters::operator[](size_t index)
 {
   if (index >= m_counters.size()) {
     m_counters.resize(index + 1);
@@ -35,20 +34,17 @@ Counters::operator[](size_t index)
   return m_counters.at(index);
 }
 
-unsigned
-Counters::operator[](size_t index) const
+unsigned Counters::operator[](size_t index) const
 {
   return index < m_counters.size() ? m_counters.at(index) : 0;
 }
 
-size_t
-Counters::size() const
+size_t Counters::size() const
 {
   return m_counters.size();
 }
 
-bool
-Counters::all_zero() const
+bool Counters::all_zero() const
 {
   return !std::any_of(
     m_counters.begin(), m_counters.end(), [](unsigned v) { return v != 0; });

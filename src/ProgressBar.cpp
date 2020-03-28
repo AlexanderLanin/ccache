@@ -31,8 +31,7 @@ namespace {
 
 const size_t k_max_width = 120;
 
-size_t
-get_terminal_width()
+size_t get_terminal_width()
 {
 #ifdef _WIN32
   CONSOLE_SCREEN_BUFFER_INFO info;
@@ -55,8 +54,7 @@ ProgressBar::ProgressBar(const std::string& header)
   update(0.0);
 }
 
-void
-ProgressBar::update(double value)
+void ProgressBar::update(double value)
 {
   if (!m_stdout_is_a_terminal) {
     return;

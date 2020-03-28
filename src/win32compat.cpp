@@ -25,8 +25,9 @@
 #  include <tchar.h>
 
 #  if !defined(HAVE_REALPATH) && !defined(HAVE_GETFINALPATHNAMEBYHANDLEW)
-BOOL
-GetFileNameFromHandle(HANDLE file_handle, TCHAR* filename, WORD cch_filename)
+BOOL GetFileNameFromHandle(HANDLE file_handle,
+                           TCHAR* filename,
+                           WORD cch_filename)
 {
   BOOL success = FALSE;
 

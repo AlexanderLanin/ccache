@@ -209,9 +209,8 @@ read_embedded_file_entry(const Context&,
   }
 }
 
-static std::string
-get_raw_file_path(const std::string& result_path_in_cache,
-                  uint32_t entry_number)
+static std::string get_raw_file_path(const std::string& result_path_in_cache,
+                                     uint32_t entry_number)
 {
   return fmt::format("{:{}}_{}.raw",
                      result_path_in_cache.c_str(),
@@ -219,11 +218,10 @@ get_raw_file_path(const std::string& result_path_in_cache,
                      entry_number);
 }
 
-static bool
-copy_raw_file(const Context& ctx,
-              const std::string& source,
-              const std::string& dest,
-              bool to_cache)
+static bool copy_raw_file(const Context& ctx,
+                          const std::string& source,
+                          const std::string& dest,
+                          bool to_cache)
 {
   if (ctx.config.file_clone()) {
     cc_log("Cloning %s to %s", source.c_str(), dest.c_str());
@@ -246,13 +244,12 @@ copy_raw_file(const Context& ctx,
   return copy_file(source.c_str(), dest.c_str(), to_cache);
 }
 
-static void
-read_raw_file_entry(const Context& ctx,
-                    CacheEntryReader& reader,
-                    const std::string& result_path_in_cache,
-                    uint32_t entry_number,
-                    const ResultFileMap* result_file_map,
-                    std::FILE* dump_stream)
+static void read_raw_file_entry(const Context& ctx,
+                                CacheEntryReader& reader,
+                                const std::string& result_path_in_cache,
+                                uint32_t entry_number,
+                                const ResultFileMap* result_file_map,
+                                std::FILE* dump_stream)
 {
   UnderlyingFileTypeInt type;
   reader.read(type);
@@ -301,11 +298,10 @@ read_raw_file_entry(const Context& ctx,
   }
 }
 
-static bool
-read_result(const Context& ctx,
-            const std::string& path,
-            const ResultFileMap* result_file_map,
-            FILE* dump_stream)
+static bool read_result(const Context& ctx,
+                        const std::string& path,
+                        const ResultFileMap* result_file_map,
+                        FILE* dump_stream)
 {
   File file(path, "rb");
   if (!file) {
@@ -430,8 +426,7 @@ write_raw_file_entry(Context& ctx,
                     (new_stat ? 1 : 0) - (old_stat ? 1 : 0));
 }
 
-static bool
-should_store_raw_file(const Config& config, FileType type)
+static bool should_store_raw_file(const Config& config, FileType type)
 {
   if (!config.file_clone() && !config.hard_link()) {
     return false;
@@ -454,10 +449,9 @@ should_store_raw_file(const Config& config, FileType type)
   return type != FileType::stderr_output && type != FileType::dependency;
 }
 
-static void
-write_result(Context& ctx,
-             const std::string& path,
-             const ResultFileMap& result_file_map)
+static void write_result(Context& ctx,
+                         const std::string& path,
+                         const ResultFileMap& result_file_map)
 {
   uint64_t payload_size = 0;
   payload_size += 1; // n_entries
@@ -494,10 +488,9 @@ write_result(Context& ctx,
   atomic_result_file.commit();
 }
 
-bool
-result_get(const Context& ctx,
-           const std::string& path,
-           const ResultFileMap& result_file_map)
+bool result_get(const Context& ctx,
+                const std::string& path,
+                const ResultFileMap& result_file_map)
 {
   cc_log("Getting result %s", path.c_str());
 
@@ -516,10 +509,9 @@ result_get(const Context& ctx,
   }
 }
 
-bool
-result_put(Context& ctx,
-           const std::string& path,
-           const ResultFileMap& result_file_map)
+bool result_put(Context& ctx,
+                const std::string& path,
+                const ResultFileMap& result_file_map)
 {
   cc_log("Storing result %s", path.c_str());
 
@@ -532,8 +524,7 @@ result_put(Context& ctx,
   }
 }
 
-bool
-result_dump(const Context& ctx, const std::string& path, FILE* stream)
+bool result_dump(const Context& ctx, const std::string& path, FILE* stream)
 {
   assert(stream);
 

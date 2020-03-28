@@ -24,20 +24,17 @@
 
 namespace Compression {
 
-int8_t
-level_from_config(const Config& config)
+int8_t level_from_config(const Config& config)
 {
   return config.compression() ? config.compression_level() : 0;
 }
 
-Type
-type_from_config(const Config& config)
+Type type_from_config(const Config& config)
 {
   return config.compression() ? Type::zstd : Type::none;
 }
 
-Type
-type_from_int(uint8_t type)
+Type type_from_int(uint8_t type)
 {
   switch (type) {
   case static_cast<uint8_t>(Type::none):
@@ -50,8 +47,7 @@ type_from_int(uint8_t type)
   throw Error(fmt::format("Unknown type: {}", type));
 }
 
-std::string
-type_to_string(Type type)
+std::string type_to_string(Type type)
 {
   switch (type) {
   case Type::none:

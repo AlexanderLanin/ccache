@@ -63,8 +63,7 @@ static size_t debug_log_size;
 #define DEBUG_LOG_BUFFER_MARGIN 1024
 
 // Initialize logging. Call only once.
-void
-init_log(const Config& config)
+void init_log(const Config& config)
 {
   if (config.debug()) {
     debug_log_buffer_capacity = DEBUG_LOG_BUFFER_MARGIN;
@@ -89,8 +88,7 @@ init_log(const Config& config)
 #endif
 }
 
-static void
-append_to_debug_log(const char* s, size_t len)
+static void append_to_debug_log(const char* s, size_t len)
 {
   assert(debug_log_buffer);
   if (debug_log_size + len + 1 > debug_log_buffer_capacity) {
@@ -102,8 +100,7 @@ append_to_debug_log(const char* s, size_t len)
   debug_log_size += len;
 }
 
-static void
-log_prefix(bool log_updated_time)
+static void log_prefix(bool log_updated_time)
 {
   static char prefix[200];
 #ifdef HAVE_GETTIMEOFDAY
@@ -144,8 +141,7 @@ log_prefix(bool log_updated_time)
 static void warn_log_fail() ATTR_NORETURN;
 
 // Warn about failure writing to the log file and then exit.
-static void
-warn_log_fail()
+static void warn_log_fail()
 {
   // Note: Can't call fatal() since that would lead to recursion.
   fprintf(stderr,
@@ -155,8 +151,7 @@ warn_log_fail()
   x_exit(EXIT_FAILURE);
 }
 
-static void
-vlog(const char* format, va_list ap, bool log_updated_time)
+static void vlog(const char* format, va_list ap, bool log_updated_time)
 {
   if (!(debug_log_buffer || logfile || use_syslog)) {
     return;
@@ -189,8 +184,7 @@ vlog(const char* format, va_list ap, bool log_updated_time)
 }
 
 // Write a message to the log file (adding a newline) and flush.
-void
-cc_log(const char* format, ...)
+void cc_log(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -203,8 +197,7 @@ cc_log(const char* format, ...)
 
 // Write a message to the log file (adding a newline) without flushing and with
 // a reused timestamp.
-void
-cc_bulklog(const char* format, ...)
+void cc_bulklog(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -213,8 +206,7 @@ cc_bulklog(const char* format, ...)
 }
 
 // Log an executed command to the CCACHE_LOGFILE location.
-void
-cc_log_argv(const char* prefix, char** argv)
+void cc_log_argv(const char* prefix, char** argv)
 {
   if (!(debug_log_buffer || logfile || use_syslog)) {
     return;
@@ -245,8 +237,7 @@ cc_log_argv(const char* prefix, char** argv)
 }
 
 // Copy the current log memory buffer to an output file.
-void
-cc_dump_debug_log_buffer(const char* path)
+void cc_dump_debug_log_buffer(const char* path)
 {
   FILE* file = fopen(path, "w");
   if (file) {

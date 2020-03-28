@@ -64,8 +64,7 @@ ThreadPool::~ThreadPool()
   shut_down();
 }
 
-void
-ThreadPool::enqueue(std::function<void()> function)
+void ThreadPool::enqueue(std::function<void()> function)
 {
   {
     std::unique_lock<std::mutex> lock(m_mutex);
@@ -78,8 +77,7 @@ ThreadPool::enqueue(std::function<void()> function)
   m_task_enqueued_or_shutting_down_condition.notify_one();
 }
 
-void
-ThreadPool::shut_down()
+void ThreadPool::shut_down()
 {
   {
     std::unique_lock<std::mutex> lock(m_mutex);
@@ -93,8 +91,7 @@ ThreadPool::shut_down()
   }
 }
 
-void
-ThreadPool::worker_thread_main()
+void ThreadPool::worker_thread_main()
 {
   while (true) {
     std::function<void()> task;

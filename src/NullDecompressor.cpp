@@ -24,16 +24,14 @@ NullDecompressor::NullDecompressor(FILE* stream) : m_stream(stream)
 {
 }
 
-void
-NullDecompressor::read(void* data, size_t count)
+void NullDecompressor::read(void* data, size_t count)
 {
   if (fread(data, count, 1, m_stream) != 1) {
     throw Error("failed to read from uncompressed stream");
   }
 }
 
-void
-NullDecompressor::finalize()
+void NullDecompressor::finalize()
 {
   if (fgetc(m_stream) != EOF) {
     throw Error("garbage data at end of uncompressed stream");

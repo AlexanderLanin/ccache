@@ -23,8 +23,9 @@
 struct Context;
 
 int execute(char** argv, int fd_out, int fd_err, pid_t* pid);
-char*
-find_executable(const Context& ctx, const char* name, const char* exclude_name);
+char* find_executable(const Context& ctx,
+                      const char* name,
+                      const char* exclude_name);
 char* find_executable_in_path(const char* name,
                               const char* exclude_name,
                               const char* path);

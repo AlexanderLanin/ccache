@@ -22,10 +22,8 @@
 #include "StdMakeUnique.hpp"
 #include "ZstdCompressor.hpp"
 
-std::unique_ptr<Compressor>
-Compressor::create_from_type(Compression::Type type,
-                             FILE* stream,
-                             int8_t compression_level)
+std::unique_ptr<Compressor> Compressor::create_from_type(
+  Compression::Type type, FILE* stream, int8_t compression_level)
 {
   switch (type) {
   case Compression::Type::none:

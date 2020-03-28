@@ -44,8 +44,7 @@ private:
 #endif
 };
 
-inline bool
-Lockfile::acquired() const
+inline bool Lockfile::acquired() const
 {
 #ifndef _WIN32
   return m_acquired;

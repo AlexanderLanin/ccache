@@ -127,8 +127,7 @@ struct FileInfo
   int64_t ctime;
 };
 
-bool
-operator==(const FileInfo& lhs, const FileInfo& rhs)
+bool operator==(const FileInfo& lhs, const FileInfo& rhs)
 {
   return lhs.index == rhs.index && digests_equal(&lhs.digest, &rhs.digest)
          && lhs.fsize == rhs.fsize && lhs.mtime == rhs.mtime
@@ -141,8 +140,7 @@ namespace std {
 
 template<> struct hash<FileInfo>
 {
-  size_t
-  operator()(const FileInfo& file_info) const
+  size_t operator()(const FileInfo& file_info) const
   {
     static_assert(sizeof(FileInfo) == 48, "unexpected size"); // No padding.
     Checksum checksum;
@@ -173,8 +171,7 @@ struct ManifestData
   // Result names plus references to include file infos.
   std::vector<ResultEntry> results;
 
-  void
-  add_result_entry(
+  void add_result_entry(
     const struct digest& result_digest,
     const std::unordered_map<std::string, digest>& included_files,
     time_t time_of_compilation,
@@ -206,8 +203,7 @@ struct ManifestData
   }
 
 private:
-  uint32_t
-  get_file_info_index(
+  uint32_t get_file_info_index(
     const std::string& path,
     const digest& digest,
     const std::unordered_map<std::string, uint32_t>& mf_files,
@@ -273,8 +269,8 @@ struct FileStats
   int64_t ctime;
 };
 
-static std::unique_ptr<ManifestData>
-read_manifest(const std::string& path, FILE* dump_stream = nullptr)
+static std::unique_ptr<ManifestData> read_manifest(const std::string& path,
+                                                   FILE* dump_stream = nullptr)
 {
   File file(path, "rb");
   if (!file) {
@@ -332,10 +328,9 @@ read_manifest(const std::string& path, FILE* dump_stream = nullptr)
   return mf;
 }
 
-static bool
-write_manifest(const Config& config,
-               const std::string& path,
-               const ManifestData& mf)
+static bool write_manifest(const Config& config,
+                           const std::string& path,
+                           const ManifestData& mf)
 {
   uint64_t payload_size = 0;
   payload_size += 4; // n_files
@@ -474,8 +469,7 @@ verify_result(const Context& ctx,
 
 // Try to get the result name from a manifest file. Caller frees. Returns NULL
 // on failure.
-struct digest*
-manifest_get(const Context& ctx, const std::string& path)
+struct digest* manifest_get(const Context& ctx, const std::string& path)
 {
   std::unique_ptr<ManifestData> mf;
   try {
@@ -511,14 +505,13 @@ manifest_get(const Context& ctx, const std::string& path)
 
 // Put the result name into a manifest file given a set of included files.
 // Returns true on success, otherwise false.
-bool
-manifest_put(const Config& config,
-             const std::string& path,
-             const struct digest& result_name,
-             const std::unordered_map<std::string, digest>& included_files,
+bool manifest_put(const Config& config,
+                  const std::string& path,
+                  const struct digest& result_name,
+                  const std::unordered_map<std::string, digest>& included_files,
 
-             time_t time_of_compilation,
-             bool save_timestamp)
+                  time_t time_of_compilation,
+                  bool save_timestamp)
 {
   // We don't bother to acquire a lock when writing the manifest to disk. A
   // race between two processes will only result in one lost entry, which is
@@ -572,8 +565,7 @@ manifest_put(const Config& config,
   }
 }
 
-bool
-manifest_dump(const std::string& path, FILE* stream)
+bool manifest_dump(const std::string& path, FILE* stream)
 {
   std::unique_ptr<ManifestData> mf;
   try {

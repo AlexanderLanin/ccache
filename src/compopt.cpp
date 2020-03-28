@@ -130,24 +130,21 @@ static const struct compopt compopts[] = {
   {"-u", TAKES_ARG | TAKES_CONCAT_ARG},
 };
 
-static int
-compare_compopts(const void* key1, const void* key2)
+static int compare_compopts(const void* key1, const void* key2)
 {
   const struct compopt* opt1 = (const struct compopt*)key1;
   const struct compopt* opt2 = (const struct compopt*)key2;
   return strcmp(opt1->name, opt2->name);
 }
 
-static int
-compare_prefix_compopts(const void* key1, const void* key2)
+static int compare_prefix_compopts(const void* key1, const void* key2)
 {
   const struct compopt* opt1 = (const struct compopt*)key1;
   const struct compopt* opt2 = (const struct compopt*)key2;
   return strncmp(opt1->name, opt2->name, strlen(opt2->name));
 }
 
-static const struct compopt*
-find(const char* option)
+static const struct compopt* find(const char* option)
 {
   struct compopt key;
   key.name = option;
@@ -159,8 +156,7 @@ find(const char* option)
   return static_cast<compopt*>(result);
 }
 
-static const struct compopt*
-find_prefix(const char* option)
+static const struct compopt* find_prefix(const char* option)
 {
   struct compopt key;
   key.name = option;
@@ -173,8 +169,7 @@ find_prefix(const char* option)
 }
 
 // Runs fn on the first two characters of option.
-bool
-compopt_short(bool (*fn)(const char*), const char* option)
+bool compopt_short(bool (*fn)(const char*), const char* option)
 {
   char* short_opt = x_strndup(option, 2);
   bool retval = fn(short_opt);
@@ -186,8 +181,7 @@ compopt_short(bool (*fn)(const char*), const char* option)
 bool compopt_verify_sortedness_and_flags();
 
 // For test purposes.
-bool
-compopt_verify_sortedness_and_flags()
+bool compopt_verify_sortedness_and_flags()
 {
   for (size_t i = 0; i < ARRAY_SIZE(compopts); i++) {
     if (compopts[i].type & TOO_HARD && compopts[i].type & TAKES_CONCAT_ARG) {
@@ -212,50 +206,43 @@ compopt_verify_sortedness_and_flags()
   return true;
 }
 
-bool
-compopt_affects_cpp(const char* option)
+bool compopt_affects_cpp(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & AFFECTS_CPP);
 }
 
-bool
-compopt_affects_comp(const char* option)
+bool compopt_affects_comp(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & AFFECTS_COMP);
 }
 
-bool
-compopt_too_hard(const char* option)
+bool compopt_too_hard(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & TOO_HARD);
 }
 
-bool
-compopt_too_hard_for_direct_mode(const char* option)
+bool compopt_too_hard_for_direct_mode(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & TOO_HARD_DIRECT);
 }
 
-bool
-compopt_takes_path(const char* option)
+bool compopt_takes_path(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & TAKES_PATH);
 }
 
-bool
-compopt_takes_arg(const char* option)
+bool compopt_takes_arg(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & TAKES_ARG);
 }
 
-bool
-compopt_takes_concat_arg(const char* option)
+bool compopt_takes_concat_arg(const char* option)
 {
   const struct compopt* co = find(option);
   return co && (co->type & TAKES_CONCAT_ARG);
@@ -263,8 +250,7 @@ compopt_takes_concat_arg(const char* option)
 
 // Determines if the prefix of the option matches any option and affects the
 // preprocessor.
-bool
-compopt_prefix_affects_cpp(const char* option)
+bool compopt_prefix_affects_cpp(const char* option)
 {
   // Prefix options have to take concatenated args.
   const struct compopt* co = find_prefix(option);
@@ -273,8 +259,7 @@ compopt_prefix_affects_cpp(const char* option)
 
 // Determines if the prefix of the option matches any option and affects the
 // preprocessor.
-bool
-compopt_prefix_affects_comp(const char* option)
+bool compopt_prefix_affects_comp(const char* option)
 {
   // Prefix options have to take concatenated args.
   const struct compopt* co = find_prefix(option);

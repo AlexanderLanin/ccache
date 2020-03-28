@@ -21,14 +21,12 @@
 #include "../src/Stat.hpp"
 #include "../src/system.hpp"
 
-bool
-path_exists(const char* path)
+bool path_exists(const char* path)
 {
   return Stat::lstat(path);
 }
 
-void
-create_file(const char* path, const char* content)
+void create_file(const char* path, const char* content)
 {
   FILE* f = fopen(path, "w");
   if (!f || fputs(content, f) < 0) {

@@ -47,9 +47,7 @@ nonstd::string_view base_name(nonstd::string_view path);
 // Parameters:
 // - buffer: Bytes to read.
 // - count: Number of bytes to read.
-template<typename T>
-void
-big_endian_to_int(const uint8_t* buffer, T& value)
+template<typename T> void big_endian_to_int(const uint8_t* buffer, T& value)
 {
   value = 0;
   for (size_t i = 0; i < sizeof(T); ++i) {
@@ -58,16 +56,12 @@ big_endian_to_int(const uint8_t* buffer, T& value)
   }
 }
 
-template<>
-inline void
-big_endian_to_int(const uint8_t* buffer, int8_t& value)
+template<> inline void big_endian_to_int(const uint8_t* buffer, int8_t& value)
 {
   value = buffer[0];
 }
 
-template<>
-inline void
-big_endian_to_int(const uint8_t* buffer, uint8_t& value)
+template<> inline void big_endian_to_int(const uint8_t* buffer, uint8_t& value)
 {
   value = buffer[0];
 }
@@ -177,9 +171,7 @@ nonstd::string_view get_truncated_base_name(nonstd::string_view path,
 // Parameters:
 // - value: Integer value to read.
 // - buffer: Buffer to write bytes to.
-template<typename T>
-void
-int_to_big_endian(T value, uint8_t* buffer)
+template<typename T> void int_to_big_endian(T value, uint8_t* buffer)
 {
   for (size_t i = 0; i < sizeof(T); ++i) {
     buffer[sizeof(T) - i - 1] = value & 0xFF;
@@ -187,16 +179,12 @@ int_to_big_endian(T value, uint8_t* buffer)
   }
 }
 
-template<>
-inline void
-int_to_big_endian(uint8_t value, uint8_t* buffer)
+template<> inline void int_to_big_endian(uint8_t value, uint8_t* buffer)
 {
   buffer[0] = value;
 }
 
-template<>
-inline void
-int_to_big_endian(int8_t value, uint8_t* buffer)
+template<> inline void int_to_big_endian(int8_t value, uint8_t* buffer)
 {
   buffer[0] = value;
 }

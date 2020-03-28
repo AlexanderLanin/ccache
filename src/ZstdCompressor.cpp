@@ -61,14 +61,12 @@ ZstdCompressor::~ZstdCompressor()
   ZSTD_freeCStream(m_zstd_stream);
 }
 
-int8_t
-ZstdCompressor::actual_compression_level() const
+int8_t ZstdCompressor::actual_compression_level() const
 {
   return m_compression_level;
 }
 
-void
-ZstdCompressor::write(const void* data, size_t count)
+void ZstdCompressor::write(const void* data, size_t count)
 {
   m_zstd_in.src = data;
   m_zstd_in.size = count;
@@ -105,8 +103,7 @@ ZstdCompressor::write(const void* data, size_t count)
   }
 }
 
-void
-ZstdCompressor::finalize()
+void ZstdCompressor::finalize()
 {
   write(nullptr, 0);
 }

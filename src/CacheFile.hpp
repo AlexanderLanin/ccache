@@ -56,8 +56,7 @@ inline CacheFile::CacheFile(const std::string& path) : m_path(path)
 {
 }
 
-inline const std::string&
-CacheFile::path() const
+inline const std::string& CacheFile::path() const
 {
   return m_path;
 }

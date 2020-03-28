@@ -152,10 +152,9 @@ typedef std::function<void(
   const std::string& line, const std::string& key, const std::string& value)>
   ConfigLineHandler;
 
-bool
-parse_bool(const std::string& value,
-           const optional<std::string> env_var_key,
-           bool negate)
+bool parse_bool(const std::string& value,
+                const optional<std::string> env_var_key,
+                bool negate)
 {
   if (env_var_key) {
     // Special rule for boolean settings from the environment: "0", "false",
@@ -185,14 +184,12 @@ parse_bool(const std::string& value,
   }
 }
 
-std::string
-format_bool(bool value)
+std::string format_bool(bool value)
 {
   return value ? "true" : "false";
 }
 
-std::string
-parse_env_string(const std::string& value)
+std::string parse_env_string(const std::string& value)
 {
   char* errmsg = nullptr;
   char* substituted = subst_env_in_string(value.c_str(), &errmsg);
@@ -206,8 +203,7 @@ parse_env_string(const std::string& value)
   return result;
 }
 
-double
-parse_double(const std::string& value)
+double parse_double(const std::string& value)
 {
   size_t end;
   double result;
@@ -222,8 +218,7 @@ parse_double(const std::string& value)
   return result;
 }
 
-uint64_t
-parse_cache_size(const std::string& value)
+uint64_t parse_cache_size(const std::string& value)
 {
   uint64_t result;
   if (!parse_size_with_suffix(value.c_str(), &result)) {
@@ -232,8 +227,7 @@ parse_cache_size(const std::string& value)
   return result;
 }
 
-std::string
-format_cache_size(uint64_t value)
+std::string format_cache_size(uint64_t value)
 {
   char* string = format_parsable_size_with_suffix(value);
   std::string result = string;
@@ -241,8 +235,7 @@ format_cache_size(uint64_t value)
   return result;
 }
 
-uint32_t
-parse_sloppiness(const std::string& value)
+uint32_t parse_sloppiness(const std::string& value)
 {
   size_t start = 0;
   size_t end = 0;
@@ -277,8 +270,7 @@ parse_sloppiness(const std::string& value)
   return result;
 }
 
-std::string
-format_sloppiness(uint32_t sloppiness)
+std::string format_sloppiness(uint32_t sloppiness)
 {
   std::string result;
   if (sloppiness & SLOPPY_INCLUDE_FILE_MTIME) {
@@ -318,8 +310,7 @@ format_sloppiness(uint32_t sloppiness)
   return result;
 }
 
-uint32_t
-parse_umask(const std::string& value)
+uint32_t parse_umask(const std::string& value)
 {
   if (value.empty()) {
     return std::numeric_limits<uint32_t>::max();
@@ -333,8 +324,7 @@ parse_umask(const std::string& value)
   return result;
 }
 
-std::string
-format_umask(uint32_t umask)
+std::string format_umask(uint32_t umask)
 {
   if (umask == std::numeric_limits<uint32_t>::max()) {
     return {};
@@ -343,8 +333,7 @@ format_umask(uint32_t umask)
   }
 }
 
-unsigned
-parse_unsigned(const std::string& value)
+unsigned parse_unsigned(const std::string& value)
 {
   size_t end;
   long result;
@@ -360,19 +349,17 @@ parse_unsigned(const std::string& value)
   return result;
 }
 
-void
-verify_absolute_path(const std::string& value)
+void verify_absolute_path(const std::string& value)
 {
   if (!Util::is_absolute_path(value)) {
     throw Error(fmt::format("not an absolute path: \"{}\"", value));
   }
 }
 
-bool
-parse_line(const std::string& line,
-           std::string* key,
-           std::string* value,
-           std::string* error_message)
+bool parse_line(const std::string& line,
+                std::string* key,
+                std::string* value,
+                std::string* error_message)
 {
   std::string stripped_line = Util::strip_whitespace(line);
   if (stripped_line.empty() || stripped_line[0] == '#') {
@@ -390,9 +377,8 @@ parse_line(const std::string& line,
   return true;
 }
 
-bool
-parse_config_file(const std::string& path,
-                  const ConfigLineHandler& config_line_handler)
+bool parse_config_file(const std::string& path,
+                       const ConfigLineHandler& config_line_handler)
 {
   std::ifstream file(path);
   if (!file) {
@@ -425,32 +411,27 @@ parse_config_file(const std::string& path,
 
 } // namespace
 
-const std::string&
-Config::primary_config_path() const
+const std::string& Config::primary_config_path() const
 {
   return m_primary_config_path;
 }
 
-const std::string&
-Config::secondary_config_path() const
+const std::string& Config::secondary_config_path() const
 {
   return m_secondary_config_path;
 }
 
-void
-Config::set_primary_config_path(std::string path)
+void Config::set_primary_config_path(std::string path)
 {
   m_primary_config_path = std::move(path);
 }
 
-void
-Config::set_secondary_config_path(std::string path)
+void Config::set_secondary_config_path(std::string path)
 {
   m_secondary_config_path = std::move(path);
 }
 
-bool
-Config::update_from_file(const std::string& file_path)
+bool Config::update_from_file(const std::string& file_path)
 {
   return parse_config_file(file_path,
                            [&](const std::string& /*line*/,
@@ -460,8 +441,7 @@ Config::update_from_file(const std::string& file_path)
                            });
 }
 
-void
-Config::update_from_environment()
+void Config::update_from_environment()
 {
   for (char** env = environ; *env; ++env) {
     std::string setting = *env;
@@ -497,8 +477,7 @@ Config::update_from_environment()
   }
 }
 
-std::string
-Config::get_string_value(const std::string& key) const
+std::string Config::get_string_value(const std::string& key) const
 {
   auto it = k_config_key_table.find(key);
   if (it == k_config_key_table.end()) {
@@ -613,10 +592,9 @@ Config::get_string_value(const std::string& key) const
   return {}; // Never reached
 }
 
-void
-Config::set_value_in_file(const std::string& path,
-                          const std::string& key,
-                          const std::string& value)
+void Config::set_value_in_file(const std::string& path,
+                               const std::string& key,
+                               const std::string& value)
 {
   if (k_config_key_table.find(key) == k_config_key_table.end()) {
     throw Error(fmt::format("unknown configuration option \"{}\"", key));
@@ -650,8 +628,7 @@ Config::set_value_in_file(const std::string& path,
   output.commit();
 }
 
-void
-Config::visit_items(const ItemVisitor& item_visitor) const
+void Config::visit_items(const ItemVisitor& item_visitor) const
 {
   std::vector<std::string> keys;
   keys.reserve(k_config_key_table.size());
@@ -667,12 +644,11 @@ Config::visit_items(const ItemVisitor& item_visitor) const
   }
 }
 
-void
-Config::set_item(const std::string& key,
-                 const std::string& value,
-                 const optional<std::string>& env_var_key,
-                 bool negate,
-                 const std::string& origin)
+void Config::set_item(const std::string& key,
+                      const std::string& value,
+                      const optional<std::string>& env_var_key,
+                      bool negate,
+                      const std::string& origin)
 {
   auto it = k_config_key_table.find(key);
   if (it == k_config_key_table.end()) {

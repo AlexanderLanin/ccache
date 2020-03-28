@@ -34,8 +34,7 @@
 #include <string>
 #include <thread>
 
-static File
-open_file(const std::string& path, const char* mode)
+static File open_file(const std::string& path, const char* mode)
 {
   File f(path, mode);
   if (!f) {
@@ -84,11 +83,10 @@ create_writer(FILE* stream,
                                             reader.payload_size());
 }
 
-static void
-recompress_file(Context& ctx,
-                const std::string& stats_file,
-                const CacheFile& cache_file,
-                int8_t level)
+static void recompress_file(Context& ctx,
+                            const std::string& stats_file,
+                            const CacheFile& cache_file,
+                            int8_t level)
 {
   auto file = open_file(cache_file.path(), "rb");
   auto reader = create_reader(cache_file, file.get());
@@ -139,9 +137,8 @@ recompress_file(Context& ctx,
   cc_log("Recompression of %s done", cache_file.path().c_str());
 }
 
-void
-compress_stats(const Config& config,
-               const Util::ProgressReceiver& progress_receiver)
+void compress_stats(const Config& config,
+                    const Util::ProgressReceiver& progress_receiver)
 {
   uint64_t on_disk_size = 0;
   uint64_t compr_size = 0;
@@ -207,10 +204,9 @@ compress_stats(const Config& config,
   free(on_disk_size_str);
 }
 
-void
-compress_recompress(Context& ctx,
-                    int8_t level,
-                    const Util::ProgressReceiver& progress_receiver)
+void compress_recompress(Context& ctx,
+                         int8_t level,
+                         const Util::ProgressReceiver& progress_receiver)
 {
   const size_t threads = std::thread::hardware_concurrency();
   const size_t read_ahead = 2 * threads;

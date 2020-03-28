@@ -21,8 +21,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "third_party/catch.hpp"
 
-int
-run_catch2_tests(int argc, char** argv)
+int run_catch2_tests(int argc, char** argv)
 {
   return Catch::Session().run(argc, argv);
 }

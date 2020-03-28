@@ -23,8 +23,7 @@
 
 struct ptr_deleter
 {
-  void
-  operator()(int*& ptr)
+  void operator()(int*& ptr)
   {
     delete ptr;
     ptr = nullptr;
@@ -51,8 +50,7 @@ struct Value : NonCopyable
 
 struct reset_value
 {
-  void
-  operator()(Value& v)
+  void operator()(Value& v)
   {
     v.i = 0;
   }

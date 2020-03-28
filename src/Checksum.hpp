@@ -46,20 +46,17 @@ inline Checksum::~Checksum()
   XXH64_freeState(m_state);
 }
 
-inline void
-Checksum::reset()
+inline void Checksum::reset()
 {
   XXH64_reset(m_state, 0);
 }
 
-inline void
-Checksum::update(const void* data, size_t length)
+inline void Checksum::update(const void* data, size_t length)
 {
   XXH64_update(m_state, data, length);
 }
 
-inline uint64_t
-Checksum::digest() const
+inline uint64_t Checksum::digest() const
 {
   return XXH64_digest(m_state);
 }

@@ -4,7 +4,7 @@ Language: Cpp
 BasedOnStyle: LLVM
 
 AllowShortFunctionsOnASingleLine: None
-AlwaysBreakAfterReturnType: AllDefinitions
+AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 BinPackArguments: false
 BinPackParameters: false

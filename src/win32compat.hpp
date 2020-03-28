@@ -21,7 +21,8 @@
 #ifdef _WIN32
 #  include "system.hpp"
 
-BOOL
-GetFileNameFromHandle(HANDLE file_handle, TCHAR* filename, WORD cch_filename);
+BOOL GetFileNameFromHandle(HANDLE file_handle,
+                           TCHAR* filename,
+                           WORD cch_filename);
 
 #endif

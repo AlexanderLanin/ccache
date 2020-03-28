@@ -69,14 +69,12 @@ inline Failure::Failure(enum stats stat, nonstd::optional<int> exit_code)
 {
 }
 
-inline nonstd::optional<int>
-Failure::exit_code() const
+inline nonstd::optional<int> Failure::exit_code() const
 {
   return m_exit_code;
 }
 
-inline enum stats
-Failure::stat() const
+inline enum stats Failure::stat() const
 {
   return m_stat;
 }

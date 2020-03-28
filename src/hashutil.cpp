@@ -49,8 +49,7 @@
 #  include <immintrin.h>
 #endif
 
-unsigned
-hash_from_int(int i)
+unsigned hash_from_int(int i)
 {
   return XXH64(&i, sizeof(int), 0);
 }
@@ -91,8 +90,7 @@ check_for_temporal_macros_helper(const char* str, size_t len, size_t pos)
   return 0;
 }
 
-static int
-check_for_temporal_macros_bmh(const char* str, size_t len)
+static int check_for_temporal_macros_bmh(const char* str, size_t len)
 {
   int result = 0;
 
@@ -124,8 +122,7 @@ static int check_for_temporal_macros_avx2(const char* str, size_t len)
 // The following algorithm, which uses AVX2 instructions to find __DATE__,
 // __TIME__ and __TIMESTAMP__, is heavily inspired by
 // <http://0x80.pl/articles/simd-strfind.html>.
-static int
-check_for_temporal_macros_avx2(const char* str, size_t len)
+static int check_for_temporal_macros_avx2(const char* str, size_t len)
 {
   int result = 0;
 
@@ -175,8 +172,7 @@ check_for_temporal_macros_avx2(const char* str, size_t len)
 // Returns a bitmask with HASH_SOURCE_CODE_FOUND_DATE,
 // HASH_SOURCE_CODE_FOUND_TIME and HASH_SOURCE_CODE_FOUND_TIMESTAMP set
 // appropriately.
-int
-check_for_temporal_macros(const char* str, size_t len)
+int check_for_temporal_macros(const char* str, size_t len)
 {
 #ifdef HAVE_AVX2
   if (__builtin_cpu_supports("avx2")) {
@@ -187,12 +183,11 @@ check_for_temporal_macros(const char* str, size_t len)
 }
 
 // Hash a string. Returns a bitmask of HASH_SOURCE_CODE_* results.
-int
-hash_source_code_string(const Config& config,
-                        struct hash* hash,
-                        const char* str,
-                        size_t len,
-                        const char* path)
+int hash_source_code_string(const Config& config,
+                            struct hash* hash,
+                            const char* str,
+                            size_t len,
+                            const char* path)
 {
   int result = HASH_SOURCE_CODE_OK;
 
@@ -263,11 +258,10 @@ hash_source_code_string(const Config& config,
 
 // Hash a file ignoring comments. Returns a bitmask of HASH_SOURCE_CODE_*
 // results.
-int
-hash_source_code_file(const Config& config,
-                      struct hash* hash,
-                      const char* path,
-                      size_t size_hint)
+int hash_source_code_file(const Config& config,
+                          struct hash* hash,
+                          const char* path,
+                          size_t size_hint)
 {
   if (is_precompiled_header(path)) {
     if (hash_file(hash, path)) {
@@ -287,10 +281,9 @@ hash_source_code_file(const Config& config,
   }
 }
 
-bool
-hash_command_output(struct hash* hash,
-                    const char* command,
-                    const char* compiler)
+bool hash_command_output(struct hash* hash,
+                         const char* command,
+                         const char* compiler)
 {
 #ifdef _WIN32
   // Trim leading space.
@@ -425,10 +418,9 @@ hash_command_output(struct hash* hash,
 #endif
 }
 
-bool
-hash_multicommand_output(struct hash* hash,
-                         const char* commands,
-                         const char* compiler)
+bool hash_multicommand_output(struct hash* hash,
+                              const char* commands,
+                              const char* compiler)
 {
   char* command_string = x_strdup(commands);
   char* p = command_string;
