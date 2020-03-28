@@ -56,7 +56,8 @@ public:
   // - count: Size of data to write.
   //
   // Throws Error on failure.
-  void write(const void* data, size_t count);
+  void
+  write(const void* data, size_t count);
 
   // Write an unsigned integer to the payload.
   //
@@ -64,13 +65,16 @@ public:
   // - value: Value to write.
   //
   // Throws Error on failure.
-  template<typename T> void write(T value);
+  template<typename T>
+  void
+  write(T value);
 
   // Close for writing.
   //
   // This method potentially verifies the end state after writing the cache
   // entry and throws Error if any integrity issues are found.
-  void finalize();
+  void
+  finalize();
 
 private:
   std::unique_ptr<Compressor> m_compressor;

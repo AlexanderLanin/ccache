@@ -26,13 +26,15 @@
 
 class Config;
 
-void clean_up_dir(const std::string& subdir,
-                  uint64_t max_size,
-                  uint32_t max_files,
-                  const Util::ProgressReceiver& progress_receiver);
+void
+clean_up_dir(const std::string& subdir,
+             uint64_t max_size,
+             uint32_t max_files,
+             const Util::ProgressReceiver& progress_receiver);
 
-void clean_up_all(const Config& config,
-                  const Util::ProgressReceiver& progress_receiver);
+void
+clean_up_all(const Config& config,
+             const Util::ProgressReceiver& progress_receiver);
 
-void wipe_all(const Config& config,
-              const Util::ProgressReceiver& progress_receiver);
+void
+wipe_all(const Config& config, const Util::ProgressReceiver& progress_receiver);

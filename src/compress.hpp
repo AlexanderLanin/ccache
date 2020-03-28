@@ -25,8 +25,9 @@
 struct Confix;
 struct Context;
 
-void compress_stats(const Config& config,
-                    const Util::ProgressReceiver& progress_receiver);
+void
+compress_stats(const Config& config,
+               const Util::ProgressReceiver& progress_receiver);
 
 // Recompress the cache.
 //
@@ -35,6 +36,7 @@ void compress_stats(const Config& config,
 // - level: Target compression level (positive or negative value), or 0 for no
 //   compression.
 // - progress_receiver: Function that will be called for progress updates.
-void compress_recompress(Context& ctx,
-                         int8_t level,
-                         const Util::ProgressReceiver& progress_receiver);
+void
+compress_recompress(Context& ctx,
+                    int8_t level,
+                    const Util::ProgressReceiver& progress_receiver);

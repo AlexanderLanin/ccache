@@ -31,12 +31,16 @@ enum class Type : uint8_t {
   zstd = 1,
 };
 
-int8_t level_from_config(const Config& config);
+int8_t
+level_from_config(const Config& config);
 
-Type type_from_config(const Config& config);
+Type
+type_from_config(const Config& config);
 
-Type type_from_int(uint8_t type);
+Type
+type_from_int(uint8_t type);
 
-std::string type_to_string(Compression::Type type);
+std::string
+type_to_string(Compression::Type type);
 
 } // namespace Compression

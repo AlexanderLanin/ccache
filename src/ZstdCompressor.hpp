@@ -36,9 +36,12 @@ public:
 
   ~ZstdCompressor() override;
 
-  int8_t actual_compression_level() const override;
-  void write(const void* data, size_t count) override;
-  void finalize() override;
+  int8_t
+  actual_compression_level() const override;
+  void
+  write(const void* data, size_t count) override;
+  void
+  finalize() override;
 
 private:
   FILE* m_stream;

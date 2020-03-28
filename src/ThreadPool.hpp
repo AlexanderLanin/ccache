@@ -35,8 +35,10 @@ public:
     size_t task_queue_max_size = std::numeric_limits<size_t>::max());
   ~ThreadPool();
 
-  void enqueue(std::function<void()> function);
-  void shut_down();
+  void
+  enqueue(std::function<void()> function);
+  void
+  shut_down();
 
 private:
   std::vector<std::thread> m_worker_threads;
@@ -47,7 +49,8 @@ private:
   std::condition_variable m_task_enqueued_or_shutting_down_condition;
   std::condition_variable m_task_popped_condition;
 
-  void worker_thread_main();
+  void
+  worker_thread_main();
 };
 
 ThreadPool::ThreadPool(size_t number_of_threads, size_t task_queue_max_size)

@@ -118,7 +118,8 @@ check_for_temporal_macros_bmh(const char* str, size_t len)
 }
 
 #ifdef HAVE_AVX2
-static int check_for_temporal_macros_avx2(const char* str, size_t len)
+static int
+check_for_temporal_macros_avx2(const char* str, size_t len)
   __attribute__((target("avx2")));
 
 // The following algorithm, which uses AVX2 instructions to find __DATE__,

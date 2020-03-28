@@ -29,13 +29,17 @@ class Counters
 public:
   Counters();
 
-  unsigned& operator[](size_t index);
-  unsigned operator[](size_t index) const;
+  unsigned&
+  operator[](size_t index);
+  unsigned
+  operator[](size_t index) const;
 
-  size_t size() const;
+  size_t
+  size() const;
 
   // Return true if all counters are zero, false otherwise.
-  bool all_zero() const;
+  bool
+  all_zero() const;
 
 private:
   std::vector<unsigned> m_counters;

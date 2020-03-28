@@ -20,9 +20,15 @@
 
 struct Context;
 
-void exitfn_init();
-void exitfn_add_nullary(void (*function)());
-void exitfn_add(void (*function)(void*), void* context);
-void exitfn_add_last(void (*function)(void*), void* context);
-void exitfn_delete_context(Context* ctx);
-void exitfn_call();
+void
+exitfn_init();
+void
+exitfn_add_nullary(void (*function)());
+void
+exitfn_add(void (*function)(void*), void* context);
+void
+exitfn_add_last(void (*function)(void*), void* context);
+void
+exitfn_delete_context(Context* ctx);
+void
+exitfn_call();

@@ -192,8 +192,9 @@ add_prefix(const Context& ctx, struct args* args, const char* prefix_command)
 // If `exit_code` is set, just exit with that code directly, otherwise execute
 // the real compiler and exit with its exit code. Also updates statistics
 // counter `stat` if it's not STATS_NONE.
-static void failed(enum stats stat = STATS_NONE,
-                   optional<int> exit_code = nullopt) ATTR_NORETURN;
+static void
+failed(enum stats stat = STATS_NONE,
+       optional<int> exit_code = nullopt) ATTR_NORETURN;
 
 static void
 failed(enum stats stat, optional<int> exit_code)
@@ -3468,8 +3469,10 @@ configuration_printer(const std::string& key,
   fmt::print("({}) {} = {}\n", origin, key, value);
 }
 
-static int cache_compilation(int argc, char* argv[]);
-static enum stats do_cache_compilation(Context& ctx, char* argv[]);
+static int
+cache_compilation(int argc, char* argv[]);
+static enum stats
+do_cache_compilation(Context& ctx, char* argv[]);
 
 // The entry point when invoked to cache a compilation.
 static int
@@ -3942,7 +3945,8 @@ handle_main_options(int argc, char* argv[])
   return 0;
 }
 
-int ccache_main(int argc, char* argv[]);
+int
+ccache_main(int argc, char* argv[]);
 
 int
 ccache_main(int argc, char* argv[])

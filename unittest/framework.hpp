@@ -141,48 +141,63 @@
 // ============================================================================
 
 typedef unsigned (*suite_fn)(unsigned);
-int cct_run(const suite_fn* suites, int verbose);
+int
+cct_run(const suite_fn* suites, int verbose);
 
-void cct_suite_begin(const char* name);
-void cct_suite_end();
-void cct_test_begin(const char* name);
-void cct_test_end();
-void cct_check_passed(const char* file, int line, const char* assertion);
-void cct_check_failed(const char* file,
-                      int line,
-                      const char* assertion,
-                      const char* expected,
-                      const char* actual);
-bool cct_check_double_eq(const char* file,
-                         int line,
-                         const char* expression,
-                         double expected,
-                         double actual);
-bool cct_check_int_eq(const char* file,
-                      int line,
-                      const char* expression,
-                      int64_t expected,
-                      int64_t actual);
-bool cct_check_data_eq(const char* file,
-                       int line,
-                       const char* expression,
-                       const uint8_t* expected,
-                       const uint8_t* actual,
-                       size_t size);
-bool cct_check_str_eq(const char* file,
-                      int line,
-                      const char* expression,
-                      const char* expected,
-                      const char* actual,
-                      bool free1,
-                      bool free2);
-bool cct_check_args_eq(const char* file,
-                       int line,
-                       const char* expression,
-                       const struct args* expected,
-                       const struct args* actual,
-                       bool free1,
-                       bool free2);
-void cct_chdir(const char* path);
-void cct_wipe(const char* path);
-void cct_create_fresh_dir(const char* path);
+void
+cct_suite_begin(const char* name);
+void
+cct_suite_end();
+void
+cct_test_begin(const char* name);
+void
+cct_test_end();
+void
+cct_check_passed(const char* file, int line, const char* assertion);
+void
+cct_check_failed(const char* file,
+                 int line,
+                 const char* assertion,
+                 const char* expected,
+                 const char* actual);
+bool
+cct_check_double_eq(const char* file,
+                    int line,
+                    const char* expression,
+                    double expected,
+                    double actual);
+bool
+cct_check_int_eq(const char* file,
+                 int line,
+                 const char* expression,
+                 int64_t expected,
+                 int64_t actual);
+bool
+cct_check_data_eq(const char* file,
+                  int line,
+                  const char* expression,
+                  const uint8_t* expected,
+                  const uint8_t* actual,
+                  size_t size);
+bool
+cct_check_str_eq(const char* file,
+                 int line,
+                 const char* expression,
+                 const char* expected,
+                 const char* actual,
+                 bool free1,
+                 bool free2);
+bool
+cct_check_args_eq(const char* file,
+                  int line,
+                  const char* expression,
+                  const struct args* expected,
+                  const struct args* actual,
+                  bool free1,
+                  bool free2);
+void
+cct_chdir(const char* path);
+void
+cct_wipe(const char* path);
+void
+cct_create_fresh_dir(const char* path);

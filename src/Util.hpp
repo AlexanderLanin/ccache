@@ -40,7 +40,8 @@ typedef std::function<void(const std::string& /*dir_path*/,
   SubdirVisitor;
 
 // Get base name of path.
-nonstd::string_view base_name(nonstd::string_view path);
+nonstd::string_view
+base_name(nonstd::string_view path);
 
 // Get an integer value from bytes in big endian order.
 //
@@ -74,18 +75,19 @@ big_endian_to_int(const uint8_t* buffer, uint8_t& value)
 
 // Remove the extension via `remove_extension()`, then add `new_ext`. `new_ext`
 // should start with a dot, no extra dot is inserted.
-std::string change_extension(nonstd::string_view path,
-                             nonstd::string_view new_ext);
+std::string
+change_extension(nonstd::string_view path, nonstd::string_view new_ext);
 
 // Compute the length of the longest directory path that is common to paths
 // `dir` (a directory) and `path` (any path).
-size_t common_dir_prefix_length(nonstd::string_view dir,
-                                nonstd::string_view path);
+size_t
+common_dir_prefix_length(nonstd::string_view dir, nonstd::string_view path);
 
 // Create a directory if needed, including its parents if needed.
 //
 // Returns true if the directory exists or could be created, otherwise false.
-bool create_dir(nonstd::string_view dir);
+bool
+create_dir(nonstd::string_view dir);
 
 // Create a unique temporary file.
 //
@@ -95,13 +97,16 @@ bool create_dir(nonstd::string_view dir);
 //
 // Returns the open file descriptor (in read/write mode) and the actual
 // filename.
-std::pair<int, std::string> create_temp_fd(nonstd::string_view path_prefix);
+std::pair<int, std::string>
+create_temp_fd(nonstd::string_view path_prefix);
 
 // Get directory name of path.
-nonstd::string_view dir_name(nonstd::string_view path);
+nonstd::string_view
+dir_name(nonstd::string_view path);
 
 // Return true if suffix is a suffix of string.
-bool ends_with(nonstd::string_view string, nonstd::string_view suffix);
+bool
+ends_with(nonstd::string_view string, nonstd::string_view suffix);
 
 // Call a function for each subdir (0-9a-f) in the cache.
 //
@@ -110,23 +115,27 @@ bool ends_with(nonstd::string_view string, nonstd::string_view suffix);
 // - visitor: Function to call with directory path and progress_receiver as
 //   arguments.
 // - progress_receiver: Function that will be called for progress updates.
-void for_each_level_1_subdir(const std::string& cache_dir,
-                             const SubdirVisitor& visitor,
-                             const ProgressReceiver& progress_receiver);
+void
+for_each_level_1_subdir(const std::string& cache_dir,
+                        const SubdirVisitor& visitor,
+                        const ProgressReceiver& progress_receiver);
 
 // Return current working directory (CWD) as returned from getcwd(3) (i.e.,
 // normalized path without symlink parts). Returns the empty string on error.
-std::string get_actual_cwd();
+std::string
+get_actual_cwd();
 
 // Return current working directory (CWD) by reading the environment variable
 // PWD (thus keeping any symlink parts in the path and potentially ".." or "//"
 // parts). If PWD does not resolve to the same i-node as `actual_cwd` then
 // `actual_cwd` is returned instead.
-std::string get_apparent_cwd(const std::string& actual_cwd);
+std::string
+get_apparent_cwd(const std::string& actual_cwd);
 
 // Return the file extension (including the dot) as a view into `path`. If
 // `path` has no file extension, an empty string_view is returned.
-nonstd::string_view get_extension(nonstd::string_view path);
+nonstd::string_view
+get_extension(nonstd::string_view path);
 
 // Get a list of files in a level 1 subdirectory of the cache.
 //
@@ -143,16 +152,17 @@ nonstd::string_view get_extension(nonstd::string_view path);
 // - dir: The directory to traverse recursively.
 // - progress_receiver: Function that will be called for progress updates.
 // - files: Found files.
-void get_level_1_files(const std::string& dir,
-                       const ProgressReceiver& progress_receiver,
-                       std::vector<std::shared_ptr<CacheFile>>& files);
+void
+get_level_1_files(const std::string& dir,
+                  const ProgressReceiver& progress_receiver,
+                  std::vector<std::shared_ptr<CacheFile>>& files);
 
 // Compute a relative path from `dir` (an absolute path to a directory) to
 // `path` (an absolute path). Assumes that both `dir` and `path` are normalized.
 // The algorithm does *not* follow symlinks, so the result may not actually
 // resolve to the same file as `path`.
-std::string get_relative_path(nonstd::string_view dir,
-                              nonstd::string_view path);
+std::string
+get_relative_path(nonstd::string_view dir, nonstd::string_view path);
 
 // Join `cache_dir`, a '/', `name`, and `suffix` into a single path and return
 // it. Additionally `levels` single-character, '/'-separated subpaths are split
@@ -162,15 +172,16 @@ std::string get_relative_path(nonstd::string_view dir,
 //
 // E.g. "ABCDEF" and ".foo" will become "/ccache/A/B/CDEF.foo" when the cache
 // directory is "/ccache" and cache dir levels is 2.
-std::string get_path_in_cache(nonstd::string_view cache_dir,
-                              uint32_t levels,
-                              nonstd::string_view name,
-                              nonstd::string_view suffix);
+std::string
+get_path_in_cache(nonstd::string_view cache_dir,
+                  uint32_t levels,
+                  nonstd::string_view name,
+                  nonstd::string_view suffix);
 // Return a shortened view into the base name of `path`. This view starts at the
 // beginning of the base name and ends at either the position the first dot, or
 // `max_length`, or the length of the base name, whichever is the shortest.
-nonstd::string_view get_truncated_base_name(nonstd::string_view path,
-                                            size_t max_length);
+nonstd::string_view
+get_truncated_base_name(nonstd::string_view path, size_t max_length);
 
 // Write bytes in big endian order from an integer value.
 //
@@ -202,7 +213,8 @@ int_to_big_endian(int8_t value, uint8_t* buffer)
 }
 
 // Return whether `path` is absolute.
-bool is_absolute_path(nonstd::string_view path);
+bool
+is_absolute_path(nonstd::string_view path);
 
 // Normalize absolute path `path`, not taking symlinks into account.
 //
@@ -211,48 +223,56 @@ bool is_absolute_path(nonstd::string_view path);
 // symlinks, so the result may not actually resolve to `path`.
 //
 // On Windows: Backslashes are replaced with forward slashes.
-std::string normalize_absolute_path(nonstd::string_view path);
+std::string
+normalize_absolute_path(nonstd::string_view path);
 
 // Parse a string into an integer.
 //
 // Throws Error on error.
-int parse_int(const std::string& value);
+int
+parse_int(const std::string& value);
 
 // Read file data as a string.
 //
 // Throws Error on error.
-std::string read_file(const std::string& path);
+std::string
+read_file(const std::string& path);
 
 #ifndef _WIN32
 // Like readlink(2) but returns the string (or the empty string on failure).
-std::string read_link(const std::string& path);
+std::string
+read_link(const std::string& path);
 #endif
 
 // Return a normalized absolute path of `path`. On error (e.g. if the `path`
 // doesn't exist) the empty string is returned if return_empty_on_error is true,
 // otherwise `path` unmodified.
-std::string real_path(const std::string& path,
-                      bool return_empty_on_error = false);
+std::string
+real_path(const std::string& path, bool return_empty_on_error = false);
 
 // Return a view into `path` containing the given path without the filename
 // extension as determined by `get_extension()`.
-nonstd::string_view remove_extension(nonstd::string_view path);
+nonstd::string_view
+remove_extension(nonstd::string_view path);
 
 // Return true if prefix is a prefix of string.
-bool starts_with(nonstd::string_view string, nonstd::string_view prefix);
+bool
+starts_with(nonstd::string_view string, nonstd::string_view prefix);
 
 // Strip whitespace from left and right side of a string.
 [[gnu::warn_unused_result]] std::string
 strip_whitespace(const std::string& string);
 
 // Convert a string to lowercase.
-[[gnu::warn_unused_result]] std::string to_lowercase(const std::string& string);
+[[gnu::warn_unused_result]] std::string
+to_lowercase(const std::string& string);
 
 // Write file data from a string.
 //
 // Throws Error on error.
-void write_file(const std::string& path,
-                const std::string& data,
-                bool binary = false);
+void
+write_file(const std::string& path,
+           const std::string& data,
+           bool binary = false);
 
 } // namespace Util

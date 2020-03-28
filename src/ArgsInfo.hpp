@@ -108,8 +108,10 @@ struct ArgsInfo
   ~ArgsInfo();
 
   ArgsInfo(const ArgsInfo&) = delete;
-  ArgsInfo& operator=(const ArgsInfo&) = delete;
+  ArgsInfo&
+  operator=(const ArgsInfo&) = delete;
 
   ArgsInfo(ArgsInfo&&) = delete;
-  ArgsInfo& operator=(ArgsInfo&&) = delete;
+  ArgsInfo&
+  operator=(ArgsInfo&&) = delete;
 };

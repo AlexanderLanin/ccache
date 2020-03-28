@@ -28,9 +28,12 @@ public:
   Checksum();
   ~Checksum();
 
-  void reset();
-  void update(const void* data, size_t length);
-  uint64_t digest() const;
+  void
+  reset();
+  void
+  update(const void* data, size_t length);
+  uint64_t
+  digest() const;
 
 private:
   XXH64_state_t* m_state;

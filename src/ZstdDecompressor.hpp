@@ -35,8 +35,10 @@ public:
 
   ~ZstdDecompressor() override;
 
-  void read(void* data, size_t count) override;
-  void finalize() override;
+  void
+  read(void* data, size_t count) override;
+  void
+  finalize() override;
 
 private:
   FILE* m_stream;

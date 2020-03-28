@@ -35,12 +35,14 @@ public:
   // - type: The type.
   // - stream: The stream to write to.
   // - compression_level: Desired compression level.
-  static std::unique_ptr<Compressor> create_from_type(Compression::Type type,
-                                                      FILE* stream,
-                                                      int8_t compression_level);
+  static std::unique_ptr<Compressor>
+  create_from_type(Compression::Type type,
+                   FILE* stream,
+                   int8_t compression_level);
 
   // Get the actual compression level used for the compressed stream.
-  virtual int8_t actual_compression_level() const = 0;
+  virtual int8_t
+  actual_compression_level() const = 0;
 
   // Write data from a buffer to the compressed stream.
   //
@@ -49,7 +51,8 @@ public:
   // - count: Size of data to write.
   //
   // Throws Error on failure.
-  virtual void write(const void* data, size_t count) = 0;
+  virtual void
+  write(const void* data, size_t count) = 0;
 
   // Write an unsigned integer to the compressed stream.
   //
@@ -57,11 +60,14 @@ public:
   // - value: Value to write.
   //
   // Throws Error on failure.
-  template<typename T> void write(T value);
+  template<typename T>
+  void
+  write(T value);
 
   // Finalize compression.
   //
   // This method checks that the end state of the compressed stream is correct
   // and throws Error if not.
-  virtual void finalize() = 0;
+  virtual void
+  finalize() = 0;
 };

@@ -31,8 +31,10 @@ public:
   // - stream: The file to read data from.
   explicit NullDecompressor(FILE* stream);
 
-  void read(void* data, size_t count) override;
-  void finalize() override;
+  void
+  read(void* data, size_t count) override;
+  void
+  finalize() override;
 
 private:
   FILE* m_stream;

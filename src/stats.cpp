@@ -49,8 +49,10 @@
 // line shouldn't be printed. Caller frees.
 typedef char* (*format_fn)(uint64_t value);
 
-static char* format_size_times_1024(uint64_t size);
-static char* format_timestamp(uint64_t timestamp);
+static char*
+format_size_times_1024(uint64_t size);
+static char*
+format_timestamp(uint64_t timestamp);
 
 // Statistics fields in display order.
 static struct

@@ -34,15 +34,19 @@ public:
   AtomicFile(const std::string& destination_path, Mode mode);
   ~AtomicFile();
 
-  FILE* stream();
+  FILE*
+  stream();
 
-  void write(const std::string& data);
-  void write(const std::vector<uint8_t>& data);
+  void
+  write(const std::string& data);
+  void
+  write(const std::vector<uint8_t>& data);
 
   // Close the temporary file and rename it to the destination file. Note: The
   // destructor will not do this automatically to avoid half-written data in the
   // file.
-  void commit();
+  void
+  commit();
 
 private:
   const std::string m_path;

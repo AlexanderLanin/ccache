@@ -183,7 +183,8 @@ compopt_short(bool (*fn)(const char*), const char* option)
 }
 
 // Used by unittest/test_compopt.c.
-bool compopt_verify_sortedness_and_flags();
+bool
+compopt_verify_sortedness_and_flags();
 
 // For test purposes.
 bool

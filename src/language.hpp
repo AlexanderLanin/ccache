@@ -20,8 +20,13 @@
 
 #include "system.hpp"
 
-const char* language_for_file(const char* fname);
-const char* p_language_for_language(const char* language);
-const char* extension_for_language(const char* language);
-bool language_is_supported(const char* language);
-bool language_is_preprocessed(const char* language);
+const char*
+language_for_file(const char* fname);
+const char*
+p_language_for_language(const char* language);
+const char*
+extension_for_language(const char* language);
+bool
+language_is_supported(const char* language);
+bool
+language_is_preprocessed(const char* language);

@@ -21,7 +21,8 @@
 #include "../src/compopt.hpp"
 #include "framework.hpp"
 
-bool compopt_verify_sortedness_and_flags();
+bool
+compopt_verify_sortedness_and_flags();
 
 TEST_SUITE(compopt)
 

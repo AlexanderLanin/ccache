@@ -30,11 +30,14 @@ struct digest;
 extern const uint8_t k_manifest_magic[4];
 extern const uint8_t k_manifest_version;
 
-struct digest* manifest_get(const Context& ctx, const std::string& path);
-bool manifest_put(const Config& config,
-                  const std::string& path,
-                  const struct digest& result_name,
-                  const std::unordered_map<std::string, digest>& included_files,
-                  time_t time_of_compilation,
-                  bool save_timestamp);
-bool manifest_dump(const std::string& path, FILE* stream);
+struct digest*
+manifest_get(const Context& ctx, const std::string& path);
+bool
+manifest_put(const Config& config,
+             const std::string& path,
+             const struct digest& result_name,
+             const std::unordered_map<std::string, digest>& included_files,
+             time_t time_of_compilation,
+             bool save_timestamp);
+bool
+manifest_dump(const std::string& path, FILE* stream);

@@ -31,7 +31,8 @@ public:
   //
   // Parameters:
   // - value: A value between 0.0 (nothing completed) to 1.0 (all completed).
-  void update(double value);
+  void
+  update(double value);
 
 private:
   const std::string m_header;

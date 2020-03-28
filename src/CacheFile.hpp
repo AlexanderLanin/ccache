@@ -41,11 +41,15 @@ public:
   explicit CacheFile(const std::string& path);
 
   CacheFile(const CacheFile&) = delete;
-  CacheFile& operator=(const CacheFile&) = delete;
+  CacheFile&
+  operator=(const CacheFile&) = delete;
 
-  const Stat& lstat() const;
-  const std::string& path() const;
-  Type type() const;
+  const Stat&
+  lstat() const;
+  const std::string&
+  path() const;
+  Type
+  type() const;
 
 private:
   const std::string m_path;

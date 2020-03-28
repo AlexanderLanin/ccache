@@ -47,7 +47,8 @@ public:
   //
   // Parameters:
   // - dump_stream: Stream to write to.
-  void dump_header(FILE* dump_stream);
+  void
+  dump_header(FILE* dump_stream);
 
   // Read data into a buffer from the payload.
   //
@@ -56,7 +57,8 @@ public:
   // - count: How many bytes to write.
   //
   // Throws Error on failure.
-  void read(void* data, size_t count);
+  void
+  read(void* data, size_t count);
 
   // Read an unsigned integer from the payload.
   //
@@ -64,31 +66,40 @@ public:
   // - value: Variable to write to.
   //
   // Throws Error on failure.
-  template<typename T> void read(T& value);
+  template<typename T>
+  void
+  read(T& value);
 
   // Close for reading.
   //
   // This method potentially verifies the end state after reading the cache
   // entry and throws Error if any integrity issues are found.
-  void finalize();
+  void
+  finalize();
 
   // Get size of the payload,
-  uint64_t payload_size() const;
+  uint64_t
+  payload_size() const;
 
   // Get content magic.
-  const uint8_t* magic() const;
+  const uint8_t*
+  magic() const;
 
   // Get content version.
-  uint8_t version() const;
+  uint8_t
+  version() const;
 
   // Get compression type.
-  Compression::Type compression_type() const;
+  Compression::Type
+  compression_type() const;
 
   // Get compression level.
-  int8_t compression_level() const;
+  int8_t
+  compression_level() const;
 
   // Get size of the content (header + payload + checksum).
-  uint64_t content_size() const;
+  uint64_t
+  content_size() const;
 
 private:
   std::unique_ptr<Decompressor> m_decompressor;

@@ -47,15 +47,16 @@ public:
   // Arguments:
   // - path: Path to stat.
   // - on_error: What to do on errors (including missing file).
-  static Stat stat(const std::string& path, OnError on_error = OnError::ignore);
+  static Stat
+  stat(const std::string& path, OnError on_error = OnError::ignore);
 
   // Run lstat(2) if available, otherwise stat(2).
   //
   // Arguments:
   // - path: Path to (l)stat.
   // - on_error: What to do on errors (including missing file).
-  static Stat lstat(const std::string& path,
-                    OnError on_error = OnError::ignore);
+  static Stat
+  lstat(const std::string& path, OnError on_error = OnError::ignore);
 
   // Return true if the file could be (l)stat-ed (i.e., the file exists),
   // otherwise false.
@@ -63,23 +64,35 @@ public:
 
   // Return whether this object refers to the same device and i-node as `other`
   // does.
-  bool same_inode_as(const Stat& other) const;
+  bool
+  same_inode_as(const Stat& other) const;
 
   // Return errno from the (l)stat call (0 if successful).
-  int error_number() const;
+  int
+  error_number() const;
 
-  dev_t device() const;
-  ino_t inode() const;
-  mode_t mode() const;
-  time_t ctime() const;
-  time_t mtime() const;
-  uint64_t size() const;
+  dev_t
+  device() const;
+  ino_t
+  inode() const;
+  mode_t
+  mode() const;
+  time_t
+  ctime() const;
+  time_t
+  mtime() const;
+  uint64_t
+  size() const;
 
-  uint64_t size_on_disk() const;
+  uint64_t
+  size_on_disk() const;
 
-  bool is_directory() const;
-  bool is_regular() const;
-  bool is_symlink() const;
+  bool
+  is_directory() const;
+  bool
+  is_regular() const;
+  bool
+  is_symlink() const;
 
 protected:
   using StatFunction = int (*)(const char*, struct stat*);
@@ -90,8 +103,10 @@ private:
   struct stat m_stat;
   int m_errno;
 
-  bool operator==(const Stat&) const;
-  bool operator!=(const Stat&) const;
+  bool
+  operator==(const Stat&) const;
+  bool
+  operator!=(const Stat&) const;
 };
 
 inline Stat::Stat() : m_stat{}, m_errno(-1)

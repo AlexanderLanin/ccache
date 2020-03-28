@@ -33,7 +33,8 @@ public:
   ~Lockfile();
 
   // Return whether the lockfile was acquired successfully.
-  bool acquired() const;
+  bool
+  acquired() const;
 
 private:
   std::string m_lockfile;

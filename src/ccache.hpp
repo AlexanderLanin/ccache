@@ -58,11 +58,15 @@ enum class GuessedCompiler { clang, gcc, nvcc, pump, unknown };
 // Allow caching even if -fmodules is used.
 #define SLOPPY_MODULES (1U << 9)
 
-void block_signals();
-void unblock_signals();
-nonstd::optional<enum stats> process_args(Context& ctx,
-                                          struct args* args,
-                                          struct args** preprocessor_args,
-                                          struct args** extra_args_to_hash,
-                                          struct args** compiler_args);
-bool is_precompiled_header(const char* path);
+void
+block_signals();
+void
+unblock_signals();
+nonstd::optional<enum stats>
+process_args(Context& ctx,
+             struct args* args,
+             struct args** preprocessor_args,
+             struct args** extra_args_to_hash,
+             struct args** compiler_args);
+bool
+is_precompiled_header(const char* path);

@@ -56,8 +56,10 @@ class Failure : public std::exception
 public:
   Failure(enum stats stat, nonstd::optional<int> exit_code);
 
-  nonstd::optional<int> exit_code() const;
-  enum stats stat() const;
+  nonstd::optional<int>
+  exit_code() const;
+  enum stats
+  stat() const;
 
 private:
   enum stats m_stat;

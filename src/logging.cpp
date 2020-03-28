@@ -141,7 +141,8 @@ log_prefix(bool log_updated_time)
   }
 }
 
-static void warn_log_fail() ATTR_NORETURN;
+static void
+warn_log_fail() ATTR_NORETURN;
 
 // Warn about failure writing to the log file and then exit.
 static void

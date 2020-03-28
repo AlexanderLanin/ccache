@@ -38,58 +38,105 @@ class Config : NonCopyable
 public:
   Config() = default;
 
-  const std::string& base_dir() const;
-  const std::string& cache_dir() const;
-  uint32_t cache_dir_levels() const;
-  const std::string& compiler() const;
-  const std::string& compiler_check() const;
-  bool compression() const;
-  int8_t compression_level() const;
-  const std::string& cpp_extension() const;
-  bool debug() const;
-  bool depend_mode() const;
-  bool direct_mode() const;
-  bool disable() const;
-  const std::string& extra_files_to_hash() const;
-  bool file_clone() const;
-  bool hard_link() const;
-  bool hash_dir() const;
-  const std::string& ignore_headers_in_manifest() const;
-  bool keep_comments_cpp() const;
-  double limit_multiple() const;
-  const std::string& log_file() const;
-  uint32_t max_files() const;
-  uint64_t max_size() const;
-  const std::string& path() const;
-  bool pch_external_checksum() const;
-  const std::string& prefix_command() const;
-  const std::string& prefix_command_cpp() const;
-  bool read_only() const;
-  bool read_only_direct() const;
-  bool recache() const;
-  bool run_second_cpp() const;
-  uint32_t sloppiness() const;
-  bool stats() const;
-  const std::string& temporary_dir() const;
-  uint32_t umask() const;
+  const std::string&
+  base_dir() const;
+  const std::string&
+  cache_dir() const;
+  uint32_t
+  cache_dir_levels() const;
+  const std::string&
+  compiler() const;
+  const std::string&
+  compiler_check() const;
+  bool
+  compression() const;
+  int8_t
+  compression_level() const;
+  const std::string&
+  cpp_extension() const;
+  bool
+  debug() const;
+  bool
+  depend_mode() const;
+  bool
+  direct_mode() const;
+  bool
+  disable() const;
+  const std::string&
+  extra_files_to_hash() const;
+  bool
+  file_clone() const;
+  bool
+  hard_link() const;
+  bool
+  hash_dir() const;
+  const std::string&
+  ignore_headers_in_manifest() const;
+  bool
+  keep_comments_cpp() const;
+  double
+  limit_multiple() const;
+  const std::string&
+  log_file() const;
+  uint32_t
+  max_files() const;
+  uint64_t
+  max_size() const;
+  const std::string&
+  path() const;
+  bool
+  pch_external_checksum() const;
+  const std::string&
+  prefix_command() const;
+  const std::string&
+  prefix_command_cpp() const;
+  bool
+  read_only() const;
+  bool
+  read_only_direct() const;
+  bool
+  recache() const;
+  bool
+  run_second_cpp() const;
+  uint32_t
+  sloppiness() const;
+  bool
+  stats() const;
+  const std::string&
+  temporary_dir() const;
+  uint32_t
+  umask() const;
 
-  void set_base_dir(const std::string& value);
-  void set_cache_dir(const std::string& value);
-  void set_cpp_extension(const std::string& value);
-  void set_depend_mode(bool value);
-  void set_direct_mode(bool value);
-  void set_limit_multiple(double value);
-  void set_max_files(uint32_t value);
-  void set_max_size(uint64_t value);
-  void set_run_second_cpp(bool value);
+  void
+  set_base_dir(const std::string& value);
+  void
+  set_cache_dir(const std::string& value);
+  void
+  set_cpp_extension(const std::string& value);
+  void
+  set_depend_mode(bool value);
+  void
+  set_direct_mode(bool value);
+  void
+  set_limit_multiple(double value);
+  void
+  set_max_files(uint32_t value);
+  void
+  set_max_size(uint64_t value);
+  void
+  set_run_second_cpp(bool value);
 
   // Where to write configuration changes.
-  const std::string& primary_config_path() const;
+  const std::string&
+  primary_config_path() const;
   // Secondary, read-only configuration file (if any).
-  const std::string& secondary_config_path() const;
+  const std::string&
+  secondary_config_path() const;
 
-  void set_primary_config_path(std::string path);
-  void set_secondary_config_path(std::string path);
+  void
+  set_primary_config_path(std::string path);
+  void
+  set_secondary_config_path(std::string path);
 
   typedef std::function<void(const std::string& key,
                              const std::string& value,
@@ -100,21 +147,26 @@ public:
   //
   // Returns false if the file can't be opened, otherwise true. Throws Error on
   // invalid configuration values.
-  bool update_from_file(const std::string& path);
+  bool
+  update_from_file(const std::string& path);
 
   // Set config values from environment variables.
   //
   // Throws Error on invalid configuration values.
-  void update_from_environment();
+  void
+  update_from_environment();
 
   // Get a config value in string form given a key.
-  std::string get_string_value(const std::string& key) const;
+  std::string
+  get_string_value(const std::string& key) const;
 
-  void visit_items(const ItemVisitor& item_visitor) const;
+  void
+  visit_items(const ItemVisitor& item_visitor) const;
 
-  static void set_value_in_file(const std::string& path,
-                                const std::string& key,
-                                const std::string& value);
+  static void
+  set_value_in_file(const std::string& path,
+                    const std::string& key,
+                    const std::string& value);
 
 private:
   std::string m_primary_config_path;
@@ -157,11 +209,12 @@ private:
 
   std::unordered_map<std::string /*key*/, std::string /*origin*/> m_origins;
 
-  void set_item(const std::string& key,
-                const std::string& value,
-                const nonstd::optional<std::string>& env_var_key,
-                bool negate,
-                const std::string& origin);
+  void
+  set_item(const std::string& key,
+           const std::string& value,
+           const nonstd::optional<std::string>& env_var_key,
+           bool negate,
+           const std::string& origin);
 };
 
 inline const std::string&
