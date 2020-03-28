@@ -29,8 +29,8 @@ Counters::Counters() : m_counters(STATS_END)
 // Different behavior between clang-format ~6 and 10.
 // clang-format off
 unsigned&
-// clang-format on
 Counters::operator[](size_t index)
+// clang-format on
 {
   if (index >= m_counters.size()) {
     m_counters.resize(index + 1);
@@ -41,8 +41,8 @@ Counters::operator[](size_t index)
 // Different behavior between clang-format ~6 and 10.
 // clang-format off
 unsigned
-// clang-format on
 Counters::operator[](size_t index) const
+// clang-format on
 {
   return index < m_counters.size() ? m_counters.at(index) : 0;
 }
