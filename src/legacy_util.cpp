@@ -268,7 +268,7 @@ get_hostname()
   }
 
   strcpy(hostname, "unknown");
-#if HAVE_GETHOSTNAME
+#ifdef HAVE_GETHOSTNAME
   gethostname(hostname, sizeof(hostname) - 1);
 #elif defined(_WIN32)
   const char* computer_name = getenv("COMPUTERNAME");
