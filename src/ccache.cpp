@@ -54,14 +54,6 @@
 #include "third_party/nonstd/optional.hpp"
 #include "third_party/nonstd/string_view.hpp"
 
-#ifdef HAVE_GETOPT_LONG
-#  include <getopt.h>
-#elif defined(_WIN32)
-#  include "third_party/win32/getopt.h"
-#else
-#  include "third_party/getopt_long.h"
-#endif
-
 #ifdef _WIN32
 #  include "Win32Util.hpp"
 #endif
@@ -2220,89 +2212,68 @@ do_cache_compilation(Context& ctx, const char* const* argv)
 static int
 handle_main_options(int argc, const char* const* argv)
 {
-  enum longopts {
-    CHECKSUM_FILE,
-    DUMP_MANIFEST,
-    DUMP_RESULT,
-    EVICT_OLDER_THAN,
-    EXTRACT_RESULT,
-    HASH_FILE,
-    PRINT_STATS,
-  };
-  static const struct option options[] = {
-    {"checksum-file", required_argument, nullptr, CHECKSUM_FILE},
-    {"cleanup", no_argument, nullptr, 'c'},
-    {"clear", no_argument, nullptr, 'C'},
-    {"directory", no_argument, nullptr, 'd'},
-    {"dump-manifest", required_argument, nullptr, DUMP_MANIFEST},
-    {"dump-result", required_argument, nullptr, DUMP_RESULT},
-    {"evict-older-than", required_argument, nullptr, EVICT_OLDER_THAN},
-    {"extract-result", required_argument, nullptr, EXTRACT_RESULT},
-    {"get-config", required_argument, nullptr, 'k'},
-    {"hash-file", required_argument, nullptr, HASH_FILE},
-    {"help", no_argument, nullptr, 'h'},
-    {"max-files", required_argument, nullptr, 'F'},
-    {"max-size", required_argument, nullptr, 'M'},
-    {"print-stats", no_argument, nullptr, PRINT_STATS},
-    {"recompress", required_argument, nullptr, 'X'},
-    {"set-config", required_argument, nullptr, 'o'},
-    {"show-compression", no_argument, nullptr, 'x'},
-    {"show-config", no_argument, nullptr, 'p'},
-    {"show-stats", no_argument, nullptr, 's'},
-    {"version", no_argument, nullptr, 'V'},
-    {"zero-stats", no_argument, nullptr, 'z'},
-    {nullptr, 0, nullptr, 0}};
-
   Context ctx;
   initialize(ctx, argc, argv);
 
-  int c;
-  while ((c = getopt_long(argc,
-                          const_cast<char* const*>(argv),
-                          "cCd:k:hF:M:po:sVxX:z",
-                          options,
-                          nullptr))
-         != -1) {
-    std::string arg = optarg ? optarg : std::string();
+  Args args;
+  args.add_param("-d");
+  args.add_param("--directory");
+  args.add_param("--evict-older-than");
+  args.add_param("-F");
+  args.add_param("--max-files");
+  args.add_param("-M");
+  args.add_param("--max-size");
+  args.add_param("-X");
+  args.add_param("--recompress");
+  args.add_param("-o");
+  args.add_param("--set-config");
+  args.add_param("--checksum-file");
+  args.add_param("--dump-manifest");
+  args.add_param("--dump-result");
+  args.add_param("--extract-result");
+  args.add_param("-k");
+  args.add_param("--get-config");
+  args.add_param("--hash-file");
+  args.parse(argv + 1);
+  args.splitSingleDashFlags();
 
-    switch (c) {
-    case CHECKSUM_FILE: {
+  for (auto& argstr : args) {
+    const auto keyAndValue = Util::splitKeyAndValue(argstr);
+
+    // @deprecated
+    const std::string valueStr = std::string(keyAndValue.value);
+
+    if (keyAndValue.key == "--checksum-file") {
       Checksum checksum;
-      Fd fd(arg == "-" ? STDIN_FILENO : open(arg.c_str(), O_RDONLY));
+      Fd fd(keyAndValue.value == "-" ? STDIN_FILENO
+                                     : open(valueStr.c_str(), O_RDONLY));
       Util::read_fd(*fd, [&checksum](const void* data, size_t size) {
         checksum.update(data, size);
       });
       fmt::print("{:016x}\n", checksum.digest());
-      break;
-    }
-
-    case DUMP_MANIFEST:
-      return manifest_dump(arg, stdout) ? 0 : 1;
-
-    case DUMP_RESULT: {
+    } else if (keyAndValue.key == "--dump-manifest") {
+      return manifest_dump(valueStr, stdout) ? 0 : 1;
+    } else if (keyAndValue.key == "--dump-result") {
       ResultDumper result_dumper(stdout);
-      Result::Reader result_reader(arg);
+      Result::Reader result_reader(valueStr);
       auto error = result_reader.read(result_dumper);
       if (error) {
         fmt::print(stderr, "Error: {}\n", *error);
       }
       return error ? EXIT_FAILURE : EXIT_SUCCESS;
-    }
-
-    case EVICT_OLDER_THAN: {
-      auto seconds = Util::parse_duration(arg);
+    } else if (keyAndValue.key == "--evict-older-than") {
+      auto seconds = Util::parse_duration(valueStr);
       ProgressBar progress_bar("Evicting...");
       clean_old(
         ctx, [&](double progress) { progress_bar.update(progress); }, seconds);
       if (isatty(STDOUT_FILENO)) {
         fmt::print("\n");
       }
-      break;
     }
 
-    case EXTRACT_RESULT: {
+    else if (keyAndValue.key == "--extract-result") {
       ResultExtractor result_extractor(".");
-      Result::Reader result_reader(arg);
+      Result::Reader result_reader(valueStr);
       auto error = result_reader.read(result_extractor);
       if (error) {
         fmt::print(stderr, "Error: {}\n", *error);
@@ -2310,119 +2281,106 @@ handle_main_options(int argc, const char* const* argv)
       return error ? EXIT_FAILURE : EXIT_SUCCESS;
     }
 
-    case HASH_FILE: {
+    else if (keyAndValue.key == "--hash-file") {
       Hash hash;
-      if (arg == "-") {
+      if (keyAndValue.value == "-") {
         hash.hash_fd(STDIN_FILENO);
       } else {
-        hash.hash_file(arg);
+        hash.hash_file(valueStr);
       }
       fmt::print("{}", hash.digest().to_string());
-      break;
     }
 
-    case PRINT_STATS:
+    else if (argstr == "--print-stats") {
       stats_print(ctx.config);
-      break;
-
-    case 'c': // --cleanup
-    {
+    } else if (argstr == "-c" || argstr == "--cleanup") {
       ProgressBar progress_bar("Cleaning...");
       clean_up_all(ctx.config,
                    [&](double progress) { progress_bar.update(progress); });
       if (isatty(STDOUT_FILENO)) {
         fmt::print("\n");
       }
-      break;
     }
 
-    case 'C': // --clear
-    {
+    else if (argstr == "-C" || argstr == "--clear") {
       ProgressBar progress_bar("Clearing...");
       wipe_all(ctx, [&](double progress) { progress_bar.update(progress); });
       if (isatty(STDOUT_FILENO)) {
         fmt::print("\n");
       }
-      break;
     }
 
-    case 'd': // --directory
-      Util::setenv("CCACHE_DIR", arg);
-      break;
+    else if (argstr == "-d" || argstr == "--directory") {
+      Util::setenv("CCACHE_DIR", valueStr);
+    }
 
-    case 'h': // --help
+    else if (argstr == "-h" || argstr == "--help") {
       fmt::print(stdout, USAGE_TEXT, CCACHE_NAME, CCACHE_NAME);
       exit(EXIT_SUCCESS);
+    }
 
-    case 'k': // --get-config
-      fmt::print("{}\n", ctx.config.get_string_value(arg));
-      break;
+    else if (keyAndValue.key == "-k" || keyAndValue.key == "--get-config") {
+      fmt::print("{}\n", ctx.config.get_string_value(valueStr));
+    }
 
-    case 'F': { // --max-files
-      auto files = Util::parse_uint32(arg);
+    else if (keyAndValue.key == "-F" || keyAndValue.key == "--max-files") {
+      auto files = Util::parse_uint32(valueStr);
       Config::set_value_in_file(
-        ctx.config.primary_config_path(), "max_files", arg);
+        ctx.config.primary_config_path(), "max_files", valueStr);
       if (files == 0) {
         fmt::print("Unset cache file limit\n");
       } else {
         fmt::print("Set cache file limit to {}\n", files);
       }
-      break;
     }
 
-    case 'M': { // --max-size
-      uint64_t size = Util::parse_size(arg);
+    else if (keyAndValue.key == "-M" || keyAndValue.key == "--max-size") {
+      uint64_t size = Util::parse_size(valueStr);
       Config::set_value_in_file(
-        ctx.config.primary_config_path(), "max_size", arg);
+        ctx.config.primary_config_path(), "max_size", valueStr);
       if (size == 0) {
         fmt::print("Unset cache size limit\n");
       } else {
         fmt::print("Set cache size limit to {}\n",
                    Util::format_human_readable_size(size));
       }
-      break;
     }
 
-    case 'o': { // --set-config
-      // Start searching for equal sign at position 1 to improve error message
-      // for the -o=K=V case (key "=K" and value "V").
-      size_t eq_pos = arg.find('=', 1);
-      if (eq_pos == std::string::npos) {
-        throw Error("missing equal sign in \"{}\"", arg);
+    else if (keyAndValue.key == "-o" || keyAndValue.key == "--set-config") {
+      const auto keyAndValueOfValue = Util::splitKeyAndValue(valueStr);
+      if (!keyAndValueOfValue.hasBeenSplit()) {
+        throw Error("missing equal sign in \"{}\"", keyAndValueOfValue.value);
       }
-      std::string key = arg.substr(0, eq_pos);
-      std::string value = arg.substr(eq_pos + 1);
-      Config::set_value_in_file(ctx.config.primary_config_path(), key, value);
-      break;
+      Config::set_value_in_file(ctx.config.primary_config_path(),
+                                std::string(keyAndValueOfValue.key),
+                                valueStr);
     }
 
-    case 'p': // --show-config
+    else if (argstr == "-p" || argstr == "--show-config") {
       ctx.config.visit_items(configuration_printer);
-      break;
+    }
 
-    case 's': // --show-stats
+    else if (argstr == "-s" || argstr == "--show-stats") {
       stats_summary(ctx);
-      break;
+    }
 
-    case 'V': // --version
+    else if (argstr == "-V" || argstr == "--version") {
       fmt::print(VERSION_TEXT, CCACHE_NAME, CCACHE_VERSION);
       exit(EXIT_SUCCESS);
+    }
 
-    case 'x': // --show-compression
-    {
+    else if (argstr == "-x" || argstr == "--show-compression") {
       ProgressBar progress_bar("Scanning...");
       compress_stats(ctx.config,
                      [&](double progress) { progress_bar.update(progress); });
-      break;
     }
 
-    case 'X': // --recompress
-    {
+    else if (keyAndValue.key == "-X" || keyAndValue.key == "--recompress") {
       optional<int8_t> wanted_level;
-      if (arg == "uncompressed") {
+      if (keyAndValue.value == "uncompressed") {
         wanted_level = nullopt;
       } else {
-        int level = Util::parse_int(arg);
+        int level = Util::parse_int(valueStr);
         if (level < -128 || level > 127) {
           throw Error("compression level must be between -128 and 127");
         }
@@ -2433,15 +2391,15 @@ handle_main_options(int argc, const char* const* argv)
       compress_recompress(ctx, wanted_level, [&](double progress) {
         progress_bar.update(progress);
       });
-      break;
     }
 
-    case 'z': // --zero-stats
+    else if (argstr == "-z" || argstr == "--recompress") {
       stats_zero(ctx);
       fmt::print("Statistics zeroed\n");
-      break;
+    }
 
-    default:
+    else {
+      fmt::print(stderr, "Unknown option '{}'\n", argstr); // NEW!!
       fmt::print(stderr, USAGE_TEXT, CCACHE_NAME, CCACHE_NAME);
       exit(EXIT_FAILURE);
     }

@@ -46,6 +46,15 @@ public:
   bool operator==(const Args& other) const;
   bool operator!=(const Args& other) const;
 
+  // Registers param as a multi value parameter where "param value" means
+  // "param=value". Such parameters will be coverted to the "param=value" form.
+  // Will only be used by parse function, not by the others like push_back etc!
+  void add_param(nonstd::string_view param);
+
+  // To be used if add_param needs to be accounted for.
+  // This is the only function that accounts for add_param!
+  void parse(const char* const* argv);
+
   bool empty() const;
   size_t size() const;
   const std::string& operator[](size_t i) const;
@@ -84,8 +93,14 @@ public:
   // Replace the argument at `index` with all arguments in `args`.
   void replace(size_t index, const Args& args);
 
+  std::deque<std::string>::const_iterator begin() const;
+  std::deque<std::string>::const_iterator end() const;
+
+  void splitSingleDashFlags();
+
 private:
   std::deque<std::string> m_args;
+  std::vector<std::string> m_multiValueParams;
 };
 
 inline bool
@@ -126,4 +141,16 @@ Args::operator[](size_t i)
 // clang-format on
 {
   return m_args[i];
+}
+
+inline std::deque<std::string>::const_iterator
+Args::begin() const
+{
+  return m_args.begin();
+}
+
+inline std::deque<std::string>::const_iterator
+Args::end() const
+{
+  return m_args.end();
 }

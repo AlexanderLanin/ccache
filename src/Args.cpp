@@ -212,3 +212,52 @@ Args::replace(size_t index, const Args& args)
     insert(index, args);
   }
 }
+
+// Registers param as a multi value parameter where "param value" means
+// "param=value". Will only be used by parse function, not by the others like
+// push_back!
+void
+Args::add_param(nonstd::string_view param)
+{
+  m_multiValueParams.push_back(std::string(param));
+}
+
+// To be used if add_param needs to be accounted for.
+// This is the only function that accounts for add_param!
+void
+Args::parse(const char* const* argv)
+{
+  std::string key = "";
+
+  for (int i = 0; argv[i] != nullptr; i++) {
+    if (!key.empty()) {
+      m_args.push_back(key + "=" + argv[i]);
+      key.clear();
+    } else if (std::find(
+                 m_multiValueParams.begin(), m_multiValueParams.end(), argv[i])
+               != m_multiValueParams.end()) {
+      key = argv[i];
+    } else {
+      m_args.push_back(argv[i]);
+    }
+  }
+
+  if (!key.empty()) {
+    m_args.push_back(key + "=");
+  }
+}
+
+void
+Args::splitSingleDashFlags()
+{
+  for (size_t i = 0; i != size(); ++i) {
+    const int orig_i = i;
+    if (m_args[orig_i][0] == '-' && m_args[orig_i][1] != '-'
+        && m_args[orig_i][1] != '\0') {
+      for (size_t pos = 2; pos < m_args[orig_i].length(); ++pos) {
+        insert(++i, from_string(fmt::format("-{}", m_args[orig_i][pos])));
+      }
+      m_args[orig_i] = m_args[orig_i].substr(0, 2);
+    }
+  }
+}

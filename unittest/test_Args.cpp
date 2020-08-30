@@ -291,4 +291,105 @@ TEST_CASE("Args operations")
   }
 }
 
+TEST_CASE("Args param constructor")
+{
+  Args args;
+  char empty[] = "";
+  char one[] = "one";
+  char two[] = "two";
+
+  SUBCASE("nullptr")
+  {
+    const char* argv[] = {nullptr};
+    args.parse(argv);
+    CHECK(args.to_string() == "");
+  }
+  SUBCASE("empty")
+  {
+    const char* argv[] = {empty, nullptr};
+    args.parse(argv);
+    CHECK(args.to_string() == "");
+  }
+  SUBCASE("one param")
+  {
+    const char* argv[] = {one, nullptr};
+    SUBCASE("without add_param")
+    {
+      args.parse(argv);
+      CHECK(args.to_string() == "one");
+    }
+    SUBCASE("with add_param")
+    {
+      args.add_param("one");
+      args.parse(argv);
+      CHECK(args.to_string() == "one=");
+    }
+  }
+  SUBCASE("two params")
+  {
+    const char* argv[] = {one, two, nullptr};
+    SUBCASE("without add_param")
+    {
+      args.parse(argv);
+      CHECK(args.to_string() == "one two");
+    }
+    SUBCASE("with add_param")
+    {
+      args.add_param("one");
+      args.parse(argv);
+      CHECK(args.to_string() == "one=two");
+    }
+  }
+  SUBCASE("three params")
+  {
+    const char* argv[] = {one, two, one, nullptr};
+    SUBCASE("without add_param")
+    {
+      args.parse(argv);
+      CHECK(args.to_string() == "one two one");
+    }
+    SUBCASE("with add_param")
+    {
+      args.add_param("one");
+      args.parse(argv);
+      CHECK(args.to_string() == "one=two one=");
+    }
+  }
+  SUBCASE("four params")
+  {
+    const char* argv[] = {one, one, two, two, nullptr};
+    SUBCASE("without add_param")
+    {
+      args.parse(argv);
+      CHECK(args.to_string() == "one one two two");
+    }
+    SUBCASE("with add_param")
+    {
+      args.add_param("one");
+      args.parse(argv);
+      CHECK(args.to_string() == "one=one two two");
+    }
+  }
+}
+
+static std::string
+splitSingleDashFlags(const std::string str)
+{
+  Args args = Args::from_string(str);
+  args.splitSingleDashFlags();
+  return args.to_string();
+}
+
+TEST_CASE("Handling flags")
+{
+  CHECK(splitSingleDashFlags("") == "");
+  CHECK(splitSingleDashFlags("abc") == "abc");
+  CHECK(splitSingleDashFlags("--abc") == "--abc");
+  CHECK(splitSingleDashFlags("-a -b") == "-a -b");
+  CHECK(splitSingleDashFlags("-ab") == "-a -b");
+  CHECK(splitSingleDashFlags("-ab -ab") == "-a -b -a -b");
+  CHECK(splitSingleDashFlags("-a -ab xy -a --z -abc xy")
+        == "-a -a -b xy -a --z -a -b -c xy");
+}
+
 TEST_SUITE_END();
