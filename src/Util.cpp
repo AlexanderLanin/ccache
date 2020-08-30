@@ -1293,7 +1293,7 @@ strip_ansi_csi_seqs(string_view string)
 }
 
 std::string
-strip_whitespace(const std::string& string)
+strip_whitespace(nonstd::string_view string)
 {
   auto is_space = [](int ch) { return std::isspace(ch); };
   auto start = std::find_if_not(string.begin(), string.end(), is_space);
@@ -1506,6 +1506,15 @@ write_file(const std::string& path,
     throw Error(strerror(errno));
   }
   file << data;
+}
+
+KeyAndValueView
+splitKeyAndValue(const nonstd::string_view string, const char splitChar)
+{
+  const size_t sep_pos = string.find(splitChar);
+  if (sep_pos == std::string::npos)
+    return KeyAndValueView{};
+  return KeyAndValueView{string.substr(0, sep_pos), string.substr(sep_pos + 1)};
 }
 
 } // namespace Util

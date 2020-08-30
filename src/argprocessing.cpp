@@ -145,11 +145,12 @@ process_profiling_option(Context& ctx, const std::string& arg)
     return true;
   }
 
-  std::string new_profile_path;
+  const auto keyAndValue = Util::splitKeyAndValue(arg);
+  nonstd::string_view new_profile_path;
   bool new_profile_use = false;
 
-  if (Util::starts_with(arg, "-fprofile-dir=")) {
-    new_profile_path = arg.substr(arg.find('=') + 1);
+  if (keyAndValue.key == "-fprofile-dir") {
+    new_profile_path = keyAndValue.value;
   } else if (arg == "-fprofile-generate" || arg == "-fprofile-instr-generate") {
     ctx.args_info.profile_generate = true;
     if (ctx.guessed_compiler == GuessedCompiler::clang) {
@@ -158,10 +159,10 @@ process_profiling_option(Context& ctx, const std::string& arg)
       // GCC uses $PWD/$(basename $obj).
       new_profile_path = ctx.apparent_cwd;
     }
-  } else if (Util::starts_with(arg, "-fprofile-generate=")
-             || Util::starts_with(arg, "-fprofile-instr-generate=")) {
+  } else if (keyAndValue.key == "-fprofile-generate"
+             || keyAndValue.key == "-fprofile-instr-generate") {
     ctx.args_info.profile_generate = true;
-    new_profile_path = arg.substr(arg.find('=') + 1);
+    new_profile_path = keyAndValue.value;
   } else if (arg == "-fprofile-use" || arg == "-fprofile-instr-use"
              || arg == "-fprofile-sample-use" || arg == "-fbranch-probabilities"
              || arg == "-fauto-profile") {
@@ -169,12 +170,12 @@ process_profiling_option(Context& ctx, const std::string& arg)
     if (ctx.args_info.profile_path.empty()) {
       new_profile_path = ".";
     }
-  } else if (Util::starts_with(arg, "-fprofile-use=")
-             || Util::starts_with(arg, "-fprofile-instr-use=")
-             || Util::starts_with(arg, "-fprofile-sample-use=")
-             || Util::starts_with(arg, "-fauto-profile=")) {
+  } else if (keyAndValue.key == "-fprofile-use"
+             || keyAndValue.key == "-fprofile-instr-use"
+             || keyAndValue.key == "-fprofile-sample-use"
+             || keyAndValue.key == "-fauto-profile") {
     new_profile_use = true;
-    new_profile_path = arg.substr(arg.find('=') + 1);
+    new_profile_path = keyAndValue.value;
   } else {
     log("Unknown profiling option: {}", arg);
     return false;
@@ -189,7 +190,7 @@ process_profiling_option(Context& ctx, const std::string& arg)
   }
 
   if (!new_profile_path.empty()) {
-    ctx.args_info.profile_path = new_profile_path;
+    ctx.args_info.profile_path = std::string(new_profile_path);
     log("Set profile directory to {}", ctx.args_info.profile_path);
   }
 
@@ -436,10 +437,10 @@ process_arg(Context& ctx,
     return nullopt;
   }
 
-  if (Util::starts_with(args[i], "-fdebug-prefix-map=")
-      || Util::starts_with(args[i], "-ffile-prefix-map=")) {
-    std::string map = args[i].substr(args[i].find('=') + 1);
-    args_info.debug_prefix_maps.push_back(map);
+  const auto keyAndValue = Util::splitKeyAndValue(args[i]);
+  if (keyAndValue.key == "-fdebug-prefix-map"
+      || keyAndValue.key == "-ffile-prefix-map") {
+    args_info.debug_prefix_maps.push_back(std::string(keyAndValue.value));
     state.common_args.push_back(args[i]);
     return nullopt;
   }
@@ -574,14 +575,14 @@ process_arg(Context& ctx,
     return nullopt;
   }
 
-  if (Util::starts_with(args[i], "-fsanitize-blacklist=")) {
-    args_info.sanitize_blacklists.emplace_back(args[i].substr(21));
+  if (keyAndValue.key == "-fsanitize-blacklist") {
+    args_info.sanitize_blacklists.emplace_back(keyAndValue.value);
     state.common_args.push_back(args[i]);
     return nullopt;
   }
 
-  if (Util::starts_with(args[i], "--sysroot=")) {
-    auto path = string_view(args[i]).substr(10);
+  if (keyAndValue.key == "--sysroot") {
+    auto path = keyAndValue.value;
     auto relpath = Util::make_relative_path(ctx, path);
     state.common_args.push_back("--sysroot=" + relpath);
     return nullopt;
@@ -668,8 +669,8 @@ process_arg(Context& ctx,
   }
 
   // Input charset needs to be handled specially.
-  if (Util::starts_with(args[i], "-finput-charset=")) {
-    state.input_charset = args[i];
+  if (keyAndValue.key == "-finput-charset") {
+    state.input_charset = args[i]; // entire arg, not just the key.
     return nullopt;
   }
 

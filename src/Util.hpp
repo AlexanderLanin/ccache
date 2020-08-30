@@ -390,6 +390,7 @@ std::vector<std::string> split_into_strings(nonstd::string_view input,
                                             const char* separators);
 
 // Return true if `prefix` is a prefix of `string`.
+// Undefined behavior in case string is shorter than prefix!
 inline bool
 starts_with(const char* string, nonstd::string_view prefix)
 {
@@ -405,11 +406,35 @@ starts_with(nonstd::string_view string, nonstd::string_view prefix)
   return string.starts_with(prefix);
 }
 
+struct KeyAndValueView
+{
+  bool
+  hasKeyAndValue() const
+  {
+    return !key.empty() && !value.empty();
+  }
+  bool
+  hasBeenSplit() const
+  {
+    return !key.empty() || !value.empty();
+  }
+
+  nonstd::string_view key, value;
+};
+// Splits strings like "key=value" into key and value.
+// If string does not contain splitChar, it will return empty values.
+// TBD: key empty or put value into key? Keeping key empty allows to add an
+// implicit conversion to KeyAndValueView which would make usage more readable.
+// Note: this works on string_view, the original string must remain available
+// for the result to be usable.
+KeyAndValueView splitKeyAndValue(nonstd::string_view string,
+                                 const char splitChar = '=');
+
 // Returns a copy of string with the specified ANSI CSI sequences removed.
 [[nodiscard]] std::string strip_ansi_csi_seqs(nonstd::string_view string);
 
 // Strip whitespace from left and right side of a string.
-[[nodiscard]] std::string strip_whitespace(const std::string& string);
+[[nodiscard]] std::string strip_whitespace(nonstd::string_view string);
 
 // Convert a string to lowercase.
 [[nodiscard]] std::string to_lowercase(nonstd::string_view string);

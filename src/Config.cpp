@@ -343,15 +343,13 @@ parse_line(const std::string& line,
   if (stripped_line.empty() || stripped_line[0] == '#') {
     return true;
   }
-  size_t equal_pos = stripped_line.find('=');
-  if (equal_pos == std::string::npos) {
-    *error_message = "missing equal sign";
+  const auto keyAndValue = Util::splitKeyAndValue(stripped_line);
+  if (!keyAndValue.hasBeenSplit()) {
+    *error_message = fmt::format("missing equal sign in '{}'", stripped_line);
     return false;
   }
-  *key = stripped_line.substr(0, equal_pos);
-  *value = stripped_line.substr(equal_pos + 1);
-  *key = Util::strip_whitespace(*key);
-  *value = Util::strip_whitespace(*value);
+  *key = Util::strip_whitespace(keyAndValue.key);
+  *value = Util::strip_whitespace(keyAndValue.value);
   return true;
 }
 
@@ -434,19 +432,19 @@ Config::update_from_environment()
     if (!Util::starts_with(setting, prefix)) {
       continue;
     }
-    size_t equal_pos = setting.find('=');
-    if (equal_pos == std::string::npos) {
+    auto keyAndValue = Util::splitKeyAndValue(setting);
+    if (!keyAndValue.hasBeenSplit()) {
       continue;
     }
 
-    std::string key = setting.substr(prefix.size(), equal_pos - prefix.size());
-    std::string value = setting.substr(equal_pos + 1);
-    bool negate = Util::starts_with(key, "NO");
+    keyAndValue.key = keyAndValue.key.substr(
+      prefix.size(), keyAndValue.key.length() - prefix.size());
+    const bool negate = Util::starts_with(keyAndValue.key, "NO");
     if (negate) {
-      key = key.substr(2);
+      keyAndValue.key = keyAndValue.key.substr(2);
     }
 
-    auto it = k_env_variable_table.find(key);
+    const auto it = k_env_variable_table.find(std::string(keyAndValue.key));
     if (it == k_env_variable_table.end()) {
       // Ignore unknown keys.
       continue;
@@ -454,9 +452,14 @@ Config::update_from_environment()
     const auto& config_key = it->second;
 
     try {
-      set_item(config_key, value, key, negate, "environment");
+      set_item(config_key,
+               std::string(keyAndValue.value),
+               std::string(keyAndValue.key),
+               negate,
+               "environment");
     } catch (const Error& e) {
-      throw Error("CCACHE_{}{}: {}", negate ? "NO" : "", key, e.what());
+      throw Error(
+        "CCACHE_{}{}: {}", negate ? "NO" : "", keyAndValue.key, e.what());
     }
   }
 }

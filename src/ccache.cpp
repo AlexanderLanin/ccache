@@ -1216,17 +1216,18 @@ hash_common_info(const Context& ctx,
   // Possibly hash the current working directory.
   if (args_info.generating_debuginfo && ctx.config.hash_dir()) {
     std::string dir_to_hash = ctx.apparent_cwd;
-    for (const auto& map : args_info.debug_prefix_maps) {
-      size_t sep_pos = map.find('=');
-      if (sep_pos != std::string::npos) {
-        std::string old_path = map.substr(0, sep_pos);
-        std::string new_path = map.substr(sep_pos + 1);
+    for (const auto& debug_prefix_map : args_info.debug_prefix_maps) {
+      const auto map = Util::splitKeyAndValue(debug_prefix_map);
+      if (map.hasBeenSplit()) {
+        const nonstd::string_view old_path = map.key;
+        const nonstd::string_view new_path = map.value;
         log("Relocating debuginfo from {} to {} (CWD: {})",
             old_path,
             new_path,
             ctx.apparent_cwd);
         if (Util::starts_with(ctx.apparent_cwd, old_path)) {
-          dir_to_hash = new_path + ctx.apparent_cwd.substr(old_path.size());
+          dir_to_hash =
+            std::string(new_path) + ctx.apparent_cwd.substr(old_path.size());
         }
       }
     }
@@ -1397,21 +1398,25 @@ calculate_result_name(Context& ctx,
       continue;
     }
 
+    // Several of the following checks require split of "key=value" type
+    // arguments.
+    const auto keyAndValue = Util::splitKeyAndValue(args[i]);
+
     // The -fdebug-prefix-map option may be used in combination with
     // CCACHE_BASEDIR to reuse results across different directories. Skip using
     // the value of the option from hashing but still hash the existence of the
     // option.
-    if (Util::starts_with(args[i], "-fdebug-prefix-map=")) {
+    if (keyAndValue.key == "-fdebug-prefix-map") {
       hash.hash_delimiter("arg");
       hash.hash("-fdebug-prefix-map=");
       continue;
     }
-    if (Util::starts_with(args[i], "-ffile-prefix-map=")) {
+    if (keyAndValue.key == "-ffile-prefix-map") {
       hash.hash_delimiter("arg");
       hash.hash("-ffile-prefix-map=");
       continue;
     }
-    if (Util::starts_with(args[i], "-fmacro-prefix-map=")) {
+    if (keyAndValue.key == "-fmacro-prefix-map") {
       hash.hash_delimiter("arg");
       hash.hash("-fmacro-prefix-map=");
       continue;
@@ -1463,9 +1468,8 @@ calculate_result_name(Context& ctx,
       }
     }
 
-    if (Util::starts_with(args[i], "-specs=")
-        || Util::starts_with(args[i], "--specs=")) {
-      std::string path = args[i].substr(args[i].find('=') + 1);
+    if (keyAndValue.key == "-specs" || keyAndValue.key == "--specs") {
+      const std::string path = std::string(keyAndValue.value);
       auto st = Stat::stat(path, Stat::OnError::log);
       if (st) {
         // If given an explicit specs file, then hash that file, but don't
@@ -1476,11 +1480,12 @@ calculate_result_name(Context& ctx,
       }
     }
 
-    if (Util::starts_with(args[i], "-fplugin=")) {
-      auto st = Stat::stat(&args[i][9], Stat::OnError::log);
+    if (keyAndValue.key == "-fplugin") {
+      const std::string path = std::string(keyAndValue.value);
+      const auto st = Stat::stat(path, Stat::OnError::log);
       if (st) {
         hash.hash_delimiter("plugin");
-        hash_compiler(ctx, hash, st, &args[i][9], false);
+        hash_compiler(ctx, hash, st, path, false);
         continue;
       }
     }

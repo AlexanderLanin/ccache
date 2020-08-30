@@ -937,4 +937,44 @@ TEST_CASE("Util::wipe_path")
   }
 }
 
+namespace Util {
+static bool
+operator==(const KeyAndValueView& lhs, const KeyAndValueView& rhs)
+{
+  return lhs.key == rhs.key && lhs.value == rhs.value;
+}
+} // namespace Util
+TEST_CASE("Util::splitKeyAndValue")
+{
+  using Util::KeyAndValueView;
+
+  CHECK(Util::splitKeyAndValue("") == KeyAndValueView{"", ""});
+  CHECK(Util::splitKeyAndValue("=") == KeyAndValueView{"", ""});
+  CHECK(Util::splitKeyAndValue("x") == KeyAndValueView{"", ""});
+  CHECK(Util::splitKeyAndValue("xy") == KeyAndValueView{"", ""});
+  CHECK(Util::splitKeyAndValue("xy=") == KeyAndValueView{"xy", ""});
+  CHECK(Util::splitKeyAndValue("=xy") == KeyAndValueView{"", "xy"});
+  CHECK(Util::splitKeyAndValue("x=y") == KeyAndValueView{"x", "y"});
+  CHECK(Util::splitKeyAndValue(" x  =   y    ")
+        == KeyAndValueView{" x  ", "   y    "});
+  CHECK(Util::splitKeyAndValue(
+          "a very very long string=another very very long string")
+        == KeyAndValueView{"a very very long string",
+                           "another very very long string"});
+
+  CHECK(!Util::splitKeyAndValue("").hasKeyAndValue());
+  CHECK(!Util::splitKeyAndValue("=").hasKeyAndValue());
+  CHECK(!Util::splitKeyAndValue("x=").hasKeyAndValue());
+  CHECK(!Util::splitKeyAndValue("=y").hasKeyAndValue());
+  CHECK(Util::splitKeyAndValue("x=y").hasKeyAndValue());
+
+  CHECK(!Util::splitKeyAndValue("").hasBeenSplit());
+  // Well... one could argue it was split... however with empty key and value
+  // the splitted values are now useless.
+  CHECK(!Util::splitKeyAndValue("=").hasBeenSplit());
+  CHECK(Util::splitKeyAndValue("x=").hasBeenSplit());
+  CHECK(Util::splitKeyAndValue("=y").hasBeenSplit());
+  CHECK(Util::splitKeyAndValue("x=y").hasBeenSplit());
+}
+
 TEST_SUITE_END();
