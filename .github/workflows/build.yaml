@@ -143,7 +143,7 @@ jobs:
             os: ubuntu-20.04
             CC: gcc
             CXX: g++
-            SPECIAL: verify-package-source
+            SPECIAL: verify-building-source
             apt_get: elfutils libzstd-dev ninja-build
 
           - name: Documentation
