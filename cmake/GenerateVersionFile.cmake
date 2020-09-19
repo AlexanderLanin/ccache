@@ -10,7 +10,7 @@ function(get_version_from_git)
   endif()
 
   execute_process(
-    COMMAND git describe --exact-match
+    COMMAND git describe --exact-match --tags
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE git_tag
     ERROR_VARIABLE git_tag_error # silence error
