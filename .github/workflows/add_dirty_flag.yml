@@ -7,6 +7,7 @@ on:
 jobs:
   add_dirty_flag:
     name: "Add dirty flag"
+    runs-on: ubuntu-20.04
     steps:
       - name: Get source
         uses: actions/checkout@v2
