@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -eu
+
+echo "Warning: if you abort with Ctrl+C you need to execute 'mv git_backup .git' afterwards"
+trap "mv git_backup .git" INT TERM EXIT
+mv .git git_backup
+
+mkdir -p build
+cd build
+cmake ..
+ninja -v
+./ccache --version
+jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+ctest --output-on-failure -j $jobs

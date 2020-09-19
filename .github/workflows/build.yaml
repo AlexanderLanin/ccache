@@ -139,6 +139,13 @@ jobs:
             SPECIAL: build-and-verify-package-source
             apt_get: elfutils libzstd-dev ninja-build
 
+          - name: Source package (without cmake step)
+            os: ubuntu-20.04
+            CC: gcc
+            CXX: g++
+            SPECIAL: verify-package-source
+            apt_get: elfutils libzstd-dev ninja-build
+
           - name: Documentation
             os: ubuntu-18.04
             EXTRA_CMAKE_BUILD_FLAGS: --target documentation

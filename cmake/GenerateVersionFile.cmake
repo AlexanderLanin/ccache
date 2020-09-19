@@ -18,6 +18,7 @@ function(get_version_from_git)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   if(cmd_result EQUAL 0)
+    set(VERSION_IS_TAGGED TRUE PARENT_SCOPE)
     set(VERSION ${git_tag} PARENT_SCOPE)
     return()
   endif()
@@ -47,21 +48,23 @@ function(get_version_from_git)
   set(VERSION "${git_branch}.${git_hash}" PARENT_SCOPE)
 endfunction()
 
-set(version_file ${CMAKE_SOURCE_DIR}/VERSION)
+include(CcacheVersion)
 
-if(EXISTS ${version_file})
-  file(READ ${version_file} VERSION)
-  string(STRIP ${VERSION} VERSION)
-else()
-  get_version_from_git()
-  if(NOT ${VERSION_ERROR} STREQUAL "")
-    message(SEND_ERROR "Cannot determine ccache version: ${VERSION_ERROR}")
+get_version_from_git()
+
+if(NOT ${VERSION_ERROR} STREQUAL "")
+  # Source tarball (or no git installed) -> Use Version from file
+  set(VERSION ${CCACHE_VER})
+endif()
+if(DEFINED VERSION_IS_TAGGED)
+  # Ensure git tag and Version from file match
+  if(NOT ${CCACHE_VER} STREQUAL VERSION)
+    # break CI, hopefully this will prevent the tag.
+    message(FATAL_ERROR "Git Tag does not match Version in CcacheVersion.cmake")
   endif()
 endif()
 
-configure_file(
-  ${CMAKE_SOURCE_DIR}/cmake/version.cpp.in
-  ${CMAKE_BINARY_DIR}/src/version.cpp
-  @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/version.cpp.in
+               ${CMAKE_BINARY_DIR}/src/version.cpp @ONLY)
 
 message(STATUS "Ccache version: ${VERSION}")
