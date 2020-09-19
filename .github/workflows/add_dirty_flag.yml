@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Get source
         uses: actions/checkout@v2
+        # Checkout the branch HEAD is pointing to (default is detached)
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Add flag
         run: cmake -P ci/add_dirty_flag.cmake
