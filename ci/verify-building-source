@@ -4,11 +4,14 @@ set -eu
 
 echo "Warning: if you abort with Ctrl+C you need to execute 'mv git_backup .git' afterwards"
 trap "mv git_backup .git" INT TERM EXIT
+trap "rm -rf build-without-git" INT TERM EXIT
 mv .git git_backup
 
-mkdir -p build
-cd build
-cmake ..
+mkdir -p build-without-git
+cd build-without-git
+# Ninja builds with relative paths so that ccache can be used to cache the build
+# without resorting to setting base_dir.
+cmake .. -G Ninja
 ninja -v
 ./ccache --version
 jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
