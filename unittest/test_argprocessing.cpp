@@ -545,9 +545,6 @@ TEST_CASE("cuda_option_file")
   CHECK(result.preprocessor_args.to_string() == "nvcc -g -Wall -DX");
   CHECK(result.extra_args_to_hash.to_string() == "");
   CHECK(result.compiler_args.to_string() == "nvcc -g -Wall -DX -c");
-  CHECK(result.preprocessor_args == Args::from_string("nvcc -g -Wall -DX"));
-  CHECK(result.extra_args_to_hash == Args::from_string(""));
-  CHECK(result.compiler_args == Args::from_string("nvcc -g -Wall -DX -c"));
 }
 
 TEST_CASE("-Xclang")

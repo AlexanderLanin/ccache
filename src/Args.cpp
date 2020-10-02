@@ -20,6 +20,8 @@
 
 #include "Util.hpp"
 
+#include <algorithm>
+
 using nonstd::nullopt;
 using nonstd::optional;
 using nonstd::string_view;
@@ -32,16 +34,39 @@ Args
 Args::from_argv(int argc, const char* const* argv)
 {
   Args args;
-  args.m_args.assign(argv, argv + argc);
+  for (int i = 0; i < argc; ++i) {
+    args.push_back(Arg(argv[i]));
+  }
   return args;
 }
 
 Args
-Args::from_string(const std::string& command)
+Args::from_string(const std::string& command,
+                  const std::vector<ParamAndSplitChars>& params_and_split_chars)
 {
   Args args;
+  std::string dangling_key;
   for (const std::string& word : Util::split_into_strings(command, " \t\r\n")) {
-    args.push_back(word);
+    const auto param_and_split_char_iter =
+      std::find_if(params_and_split_chars.begin(),
+                   params_and_split_chars.end(),
+                   [&word](const ParamAndSplitChars& p) {
+                     return p.param == word && p.allowed_split_chars[0] == ' ';
+                   });
+
+    if (!dangling_key.empty()) {
+      args.push_back(Arg(dangling_key, ArgSplit::space, word));
+      dangling_key = "";
+    } else if (param_and_split_char_iter != params_and_split_chars.end()) {
+      dangling_key = word;
+    } else {
+      args.push_back(word);
+    }
+  }
+
+  if (!dangling_key.empty()) {
+    throw(Failure(
+      Statistic::bad_compiler_arguments)); // it's not always compiler...
   }
   return args;
 }
@@ -136,7 +161,7 @@ Args::to_argv() const
   std::vector<const char*> result;
   result.reserve(m_args.size() + 1);
   for (const auto& arg : m_args) {
-    result.push_back(arg.c_str());
+    result.push_back(arg.full().c_str());
   }
   result.push_back(nullptr);
   return result;
@@ -188,7 +213,13 @@ Args::pop_front(size_t count)
 }
 
 void
-Args::push_back(const std::string& arg)
+Args::push_back(const string_view arg)
+{
+  m_args.emplace_back(arg);
+}
+
+void
+Args::push_back(const Arg& arg)
 {
   m_args.push_back(arg);
 }
@@ -200,7 +231,7 @@ Args::push_back(const Args& args)
 }
 
 void
-Args::push_front(const std::string& arg)
+Args::push_front(const Arg& arg)
 {
   m_args.push_front(arg);
 }
@@ -215,4 +246,42 @@ Args::replace(size_t index, const Args& args)
     m_args.erase(m_args.begin() + index);
     insert(index, args);
   }
+}
+
+template<typename T>
+static bool
+contains(const std::vector<T>& vec, const T& element)
+{
+  return std::find(std::begin(vec), std::end(vec), element) != std::end(vec);
+}
+
+size_t
+Args::add_param(std::string param, std::vector<ArgSplit> allowed_split_chars)
+{
+  size_t found = 0;
+
+  if (contains(allowed_split_chars, ArgSplit::space)) {
+    for (size_t i = 0; i < m_args.size(); ++i) {
+      if (m_args[i].full() == param) {
+        if (i + 1 >= m_args.size()) {
+          return -1; // FIXME throw Failure?! Which one?
+        }
+        m_args[i] = Arg(param, ArgSplit::space, m_args[i + 1]);
+        m_args.erase(std::begin(m_args) + i + 1);
+        ++found;
+      }
+    }
+  }
+
+  if (contains(allowed_split_chars, ArgSplit::written_together)) {
+    for (Arg& arg : m_args) {
+      if (!arg.has_been_split() && Util::starts_with(arg.full(), param)) {
+        arg = Arg(
+          param, ArgSplit::written_together, arg.full().substr(param.length()));
+        ++found;
+      }
+    }
+  }
+
+  return found;
 }

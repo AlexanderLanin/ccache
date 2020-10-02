@@ -1305,19 +1305,19 @@ setenv(const std::string& name, const std::string& value)
 }
 
 std::vector<string_view>
-split_into_views(string_view input, const char* separators)
+split_into_views(const string_view input, const char* const separators)
 {
   return split_at<string_view>(input, separators);
 }
 
 std::vector<std::string>
-split_into_strings(string_view input, const char* separators)
+split_into_strings(const string_view input, const char* const separators)
 {
   return split_at<std::string>(input, separators);
 }
 
 std::string
-strip_ansi_csi_seqs(string_view string)
+strip_ansi_csi_seqs(const string_view string)
 {
   size_t pos = 0;
   std::string result;
@@ -1341,14 +1341,15 @@ strip_ansi_csi_seqs(string_view string)
 std::string
 strip_whitespace(string_view string)
 {
-  auto is_space = [](int ch) { return std::isspace(ch); };
-  auto start = std::find_if_not(string.begin(), string.end(), is_space);
-  auto end = std::find_if_not(string.rbegin(), string.rend(), is_space).base();
+  const auto is_space = [](const int ch) { return std::isspace(ch); };
+  const auto start = std::find_if_not(string.begin(), string.end(), is_space);
+  const auto end =
+    std::find_if_not(string.rbegin(), string.rend(), is_space).base();
   return start < end ? std::string(start, end) : std::string();
 }
 
 std::string
-to_lowercase(string_view string)
+to_lowercase(const string_view string)
 {
   std::string result;
   result.resize(string.length());
