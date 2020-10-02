@@ -59,9 +59,9 @@ format is loosely based on [LLVM's code formatting
 style](https://llvm.org/docs/CodingStandards.html) with some exceptions. It's
 highly recommended to install
 [Clang-Format](https://clang.llvm.org/docs/ClangFormat.html) 6.0 or newer and
-run `make format` to format changes according to ccache's code style. Or even
-better: set up your editor to run Clang-Format automatically when saving. If
-you don't run Clang-Format then the ccache authors have to do it for you.
+run `misc/format-files --all` to format changes according to ccache's code
+style. Or even better: set up your editor to run Clang-Format automatically
+when saving. If you don't run Clang-Format then the PR will be rejected by CI.
 
 Please follow these conventions:
 
