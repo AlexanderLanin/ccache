@@ -1007,22 +1007,59 @@ EOF
     umask $saved_umask
 
     # -------------------------------------------------------------------------
-    TEST "No object file"
+    TEST "No object file due to bad prefix"
 
-    cat <<'EOF' >test_no_obj.c
-int test_no_obj;
-EOF
-    cat <<'EOF' >prefix-remove.sh
+    cat <<'EOF' >prefix-noop.sh
 #!/bin/sh
-"$@"
-[ x$2 = x-fcolor-diagnostics ] && shift
-[ x$2 = x-fdiagnostics-color ] && shift
-[ x$2 = x-std=gnu99 ] && shift
-[ x$3 = x-o ] && rm $4
+# Simulate compiler warning and no output:
+echo "stderr" >&2
 EOF
-    chmod +x prefix-remove.sh
-    CCACHE_PREFIX=`pwd`/prefix-remove.sh $CCACHE_COMPILE -c test_no_obj.c
+    chmod +x prefix-noop.sh
+
+    CCACHE_PREFIX=`pwd`/prefix-noop.sh $CCACHE_COMPILE -c test1.c 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 0
+    expect_stat 'files in cache' 0
     expect_stat 'compiler produced no output' 1
+    expect_content stderr.txt "stderr"
+
+    CCACHE_PREFIX=`pwd`/prefix-noop.sh $CCACHE_COMPILE -c test1.c 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 0
+    expect_stat 'files in cache' 0
+    expect_stat 'compiler produced no output' 2
+    expect_content stderr.txt "stderr"
+
+    # -------------------------------------------------------------------------
+    TEST "No object file due to -fsyntax-only"
+
+    cat <<EOF >stderr.c
+int stderr(void)
+{
+  // Trigger warning by having no return statement.
+}
+EOF
+
+    $REAL_COMPILER -Wall -c stderr.c -fsyntax-only 2>reference_stderr.txt
+
+    # GCC does not report any warnings in -fsyntax-only mode.
+    # Note: By limiting this to GCC it's ensured that the file actually does
+    #       produce a warning, at least with Clang.
+    if [ $(file_size reference_stderr.txt) -ne 0 ] || [ $COMPILER != "gcc" ]; then
+        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+        expect_stat 'cache hit (preprocessed)' 0
+        expect_stat 'cache miss' 1
+        expect_stat 'files in cache' 1
+        expect_stat 'compiler produced no output' 1
+        expect_equal_text_content reference_stderr.txt stderr.txt
+
+        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+        expect_stat 'cache hit (preprocessed)' 1
+        expect_stat 'cache miss' 1
+        expect_stat 'files in cache' 1
+        expect_stat 'compiler produced no output' 1
+        expect_equal_text_content reference_stderr.txt stderr.txt
+    fi
 
     # -------------------------------------------------------------------------
     TEST "Empty object file"
