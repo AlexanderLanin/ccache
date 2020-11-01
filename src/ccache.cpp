@@ -1031,8 +1031,13 @@ to_cache(Context& ctx,
 
   const auto obj_stat = Stat::stat(ctx.args_info.output_obj);
   if (!obj_stat) {
-    log("Compiler didn't produce an object file");
-    ctx.counter_updates.increment(Statistic::compiler_produced_no_output);
+    if (ctx.args_info.expect_output_obj) {
+      log("Compiler didn't produce an object file (unexpected)");
+      throw Failure(Statistic::compiler_produced_no_output);
+    } else {
+      log("Compiler didn't produce an object file (expected)");
+      ctx.counter_updates.increment(Statistic::compiler_produced_no_output);
+    }
   } else if (obj_stat.size() == 0) {
     log("Compiler produced an empty object file");
     throw Failure(Statistic::compiler_produced_empty_output);

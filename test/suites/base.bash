@@ -964,7 +964,7 @@ EOF
     umask $saved_umask
 
     # -------------------------------------------------------------------------
-    TEST "No object file, prefixed"
+    TEST "No object file due to bad prefix"
 
     cat <<'EOF' >prefix-noop.sh
 #!/bin/sh
@@ -975,20 +975,20 @@ EOF
 
     CCACHE_PREFIX=`pwd`/prefix-noop.sh $CCACHE_COMPILE -c test1.c 2>stderr.txt
     expect_stat 'cache hit (preprocessed)' 0
-    expect_stat 'cache miss' 1
-    expect_stat 'files in cache' 1
+    expect_stat 'cache miss' 0
+    expect_stat 'files in cache' 0
     expect_stat 'compiler produced no output' 1
     expect_content stderr.txt "stderr"
 
     CCACHE_PREFIX=`pwd`/prefix-noop.sh $CCACHE_COMPILE -c test1.c 2>stderr.txt
-    expect_stat 'cache hit (preprocessed)' 1
-    expect_stat 'cache miss' 1
-    expect_stat 'files in cache' 1
-    expect_stat 'compiler produced no output' 1
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 0
+    expect_stat 'files in cache' 0
+    expect_stat 'compiler produced no output' 2
     expect_content stderr.txt "stderr"
 
     # -------------------------------------------------------------------------
-    TEST "No object file, -fsyntax-only"
+    TEST "No object file due to -fsyntax-only"
 
     cat <<EOF >stderr.c
 int stderr(void)
@@ -997,27 +997,39 @@ int stderr(void)
 }
 EOF
 
+    # FIXME before PR!!
     # NOCPP2 adds to stderr.txt: warning: argument unused during compilation: '-fsyntax-only' [-Wunused-command-line-argument]
     unset CCACHE_NOCPP2
+
     $REAL_COMPILER -Wall -c stderr.c -fsyntax-only 2>reference_stderr.txt
 
-    # Some compilers do not report any warnings in -fsyntax-only mode (like gcc)
-    # ToDo: hotfix "gcc" to "g++"" here in place?
-    if [ $(file_size reference_stderr.txt) -ne 0 ]; then
-        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
-        expect_stat 'cache hit (preprocessed)' 0
-        expect_stat 'cache miss' 1
-        expect_stat 'files in cache' 1
-        expect_stat 'compiler produced no output' 1
-        expect_equal_text_content reference_stderr.txt stderr.txt
+    # gcc does not report any warnings in -fsyntax-only mode, attempt switch to g++.
+    if [ $(file_size reference_stderr.txt) -eq 0 ] && [ $COMPILER = "gcc" ] && [ command -v "g++" &> /dev/null ]; then
+      COMPILER="g++"
+      CCACHE_COMPILE="$CCACHE $COMPILER"
 
-        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
-        expect_stat 'cache hit (preprocessed)' 1
-        expect_stat 'cache miss' 1
-        expect_stat 'files in cache' 1
-        expect_stat 'compiler produced no output' 1
-        expect_equal_text_content reference_stderr.txt stderr.txt
+      LOCAL_COMPILER_BIN=$(echo $COMPILER | awk '{print $1}')
+      LOCAL_COMPILER_ARGS=$(echo $COMPILER | awk '{$1 = ""; print}')
+      LOCAL_REAL_COMPILER_BIN=$(find_compiler $COMPILER_BIN)
+      LOCAL_REAL_COMPILER="$LOCAL_REAL_COMPILER_BIN$COMPILER_ARGS"
+
+      echo "Switching compiler for this test case (since gcc is not supported): $COMPILER ($LOCAL_REAL_COMPILER)"
+      $LOCAL_REAL_COMPILER -Wall -c stderr.c -fsyntax-only 2>reference_stderr.txt
     fi
+
+    $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+    expect_stat 'compiler produced no output' 1
+    expect_equal_text_content reference_stderr.txt stderr.txt
+
+    $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 1
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+    expect_stat 'compiler produced no output' 1
+    expect_equal_text_content reference_stderr.txt stderr.txt
 
     # -------------------------------------------------------------------------
     TEST "Empty object file"
