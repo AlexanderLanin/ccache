@@ -1033,33 +1033,23 @@ EOF
     # -------------------------------------------------------------------------
     TEST "No object file due to -fsyntax-only"
 
-    cat <<EOF >stderr.c
-int stderr(void)
-{
-  // Trigger warning by having no return statement.
-}
-EOF
+    echo '#warning This triggers a compiler warning' >stderr.c
 
     $REAL_COMPILER -Wall -c stderr.c -fsyntax-only 2>reference_stderr.txt
 
-    # GCC does not report any warnings in -fsyntax-only mode.
-    # Note: By limiting this to GCC it's ensured that the file actually does
-    #       produce a warning, at least with Clang.
-    if [ $(file_size reference_stderr.txt) -ne 0 ] || [ $COMPILER != "gcc" ]; then
-        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
-        expect_stat 'cache hit (preprocessed)' 0
-        expect_stat 'cache miss' 1
-        expect_stat 'files in cache' 1
-        expect_stat 'compiler produced no output' 1
-        expect_equal_text_content reference_stderr.txt stderr.txt
+    expect_contains reference_stderr.txt "This triggers a compiler warning"
 
-        $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
-        expect_stat 'cache hit (preprocessed)' 1
-        expect_stat 'cache miss' 1
-        expect_stat 'files in cache' 1
-        expect_stat 'compiler produced no output' 1
-        expect_equal_text_content reference_stderr.txt stderr.txt
-    fi
+    $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+    expect_equal_text_content reference_stderr.txt stderr.txt
+
+    $CCACHE_COMPILE -Wall -c stderr.c -fsyntax-only 2>stderr.txt
+    expect_stat 'cache hit (preprocessed)' 1
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+    expect_equal_text_content reference_stderr.txt stderr.txt
 
     # -------------------------------------------------------------------------
     TEST "Empty object file"

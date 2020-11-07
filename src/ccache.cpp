@@ -1035,7 +1035,6 @@ to_cache(Context& ctx,
       throw Failure(Statistic::compiler_produced_no_output);
     } else {
       LOG_RAW("Compiler didn't produce an object file (expected)");
-      ctx.counter_updates.increment(Statistic::compiler_produced_no_output);
     }
   } else if (obj_stat.size() == 0) {
     LOG_RAW("Compiler produced an empty object file");
