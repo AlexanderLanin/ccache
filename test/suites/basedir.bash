@@ -30,6 +30,23 @@ SUITE_basedir() {
     expect_stat 'cache miss' 1
 
     # -------------------------------------------------------------------------
+    TEST "Reproduce #751"
+    # In contrast to report in #751 two different build directories are used.
+    # This way debug information is preserved and can be compared.
+
+    mkdir build1 && cd build1
+    CCACHE_DEBUG=1 CCACHE_BASEDIR="`pwd`" $CCACHE_COMPILE -I`pwd`/../dir1/include -c ../dir1/src/test.c
+    expect_stat 'cache hit (direct)' 0
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 1
+
+    cd .. && mkdir build2 && cd build2
+    CCACHE_DEBUG=1 CCACHE_BASEDIR="`pwd`" $CCACHE_COMPILE -I`pwd`/../dir2/include -c ../dir2/src/test.c
+    expect_stat 'cache hit (direct)' 0
+    expect_stat 'cache hit (preprocessed)' 1 # Actual: 0
+    expect_stat 'cache miss' 0 # Actual: 1
+
+    # -------------------------------------------------------------------------
     TEST "Disabled (default) CCACHE_BASEDIR"
 
     cd dir1
