@@ -1,5 +1,5 @@
 // Copyright (C) 2002-2007 Andrew Tridgell
-// Copyright (C) 2009-2020 Joel Rosdahl and other contributors
+// Copyright (C) 2009-2021 Joel Rosdahl and other contributors
 //
 // See doc/AUTHORS.adoc for a complete list of contributors.
 //
@@ -232,10 +232,25 @@ clean_up_internal_tempdir(const Config& config)
   });
 }
 
+static std::string
+prepare_debug_path(const std::string& debug_dir,
+                   const std::string& output_obj,
+                   string_view suffix)
+{
+  const std::string prefix =
+    debug_dir.empty() ? output_obj : debug_dir + Util::real_path(output_obj);
+  try {
+    Util::ensure_dir_exists(Util::dir_name(prefix));
+  } catch (Error&) {
+    // Ignore since we can't handle an error in another way in this context. The
+    // caller takes care of logging when trying to open the path for writing.
+  }
+  return FMT("{}.ccache-{}", prefix, suffix);
+}
+
 static void
 init_hash_debug(Context& ctx,
                 Hash& hash,
-                string_view obj_path,
                 char type,
                 string_view section_name,
                 FILE* debug_text_file)
@@ -244,7 +259,8 @@ init_hash_debug(Context& ctx,
     return;
   }
 
-  std::string path = FMT("{}.ccache-input-{}", obj_path, type);
+  const auto path = prepare_debug_path(
+    ctx.config.debug_dir(), ctx.args_info.output_obj, FMT("input-{}", type));
   File debug_binary_file(path, "wb");
   if (debug_binary_file) {
     hash.enable_debug(section_name, debug_binary_file.get(), debug_text_file);
@@ -1081,7 +1097,12 @@ get_result_name_from_cpp(Context& ctx, Args& args, Hash& hash)
 
     TemporaryFile tmp_stdout(
       FMT("{}/tmp.cpp_stdout", ctx.config.temporary_dir()));
-    stdout_path = tmp_stdout.path;
+    ctx.register_pending_tmp_file(tmp_stdout.path);
+
+    // stdout_path needs the proper cpp_extension for the compiler to do its
+    // thing correctly.
+    stdout_path = FMT("{}.{}", tmp_stdout.path, ctx.config.cpp_extension());
+    Util::hard_link(tmp_stdout.path, stdout_path);
     ctx.register_pending_tmp_file(stdout_path);
 
     TemporaryFile tmp_stderr(
@@ -1131,11 +1152,7 @@ get_result_name_from_cpp(Context& ctx, Args& args, Hash& hash)
   if (ctx.args_info.direct_i_file) {
     ctx.i_tmpfile = ctx.args_info.input_file;
   } else {
-    // i_tmpfile needs the proper cpp_extension for the compiler to do its
-    // thing correctly
-    ctx.i_tmpfile = FMT("{}.{}", stdout_path, ctx.config.cpp_extension());
-    Util::rename(stdout_path, ctx.i_tmpfile);
-    ctx.register_pending_tmp_file(ctx.i_tmpfile);
+    ctx.i_tmpfile = stdout_path;
   }
 
   if (!ctx.config.run_second_cpp()) {
@@ -1271,17 +1288,24 @@ hash_common_info(const Context& ctx,
   hash.hash(Util::base_name(args[0]));
 
   // Hash variables that may affect the compilation.
-  const char* always_hash_env_vars[] = {
+  const struct
+  {
+    const char* name;
+    uint32_t sloppiness; // 0 for "always hash"
+  } hash_env_vars[] = {
     // From <https://gcc.gnu.org/onlinedocs/gcc/Environment-Variables.html>:
-    "COMPILER_PATH",
-    "GCC_COMPARE_DEBUG",
-    "GCC_EXEC_PREFIX",
-    "SOURCE_DATE_EPOCH",
+    {"COMPILER_PATH", 0},
+    {"GCC_COMPARE_DEBUG", 0},
+    {"GCC_EXEC_PREFIX", 0},
+    {"SOURCE_DATE_EPOCH", SLOPPY_TIME_MACROS},
   };
-  for (const char* name : always_hash_env_vars) {
-    const char* value = getenv(name);
+  for (const auto& env : hash_env_vars) {
+    if (env.sloppiness != 0 && (ctx.config.sloppiness() & env.sloppiness)) {
+      continue;
+    }
+    const char* value = getenv(env.name);
     if (value) {
-      hash.hash_delimiter(name);
+      hash.hash_delimiter(env.name);
       hash.hash(value);
     }
   }
@@ -2171,8 +2195,8 @@ finalize_at_exit(Context& ctx)
 
   // Dump log buffer last to not lose any logs.
   if (ctx.config.debug() && !ctx.args_info.output_obj.empty()) {
-    const auto path = FMT("{}.ccache-log", ctx.args_info.output_obj);
-    Logging::dump_log(path);
+    Logging::dump_log(prepare_debug_path(
+      ctx.config.debug_dir(), ctx.args_info.output_obj, "log"));
   }
 }
 
@@ -2320,7 +2344,8 @@ do_cache_compilation(Context& ctx, const char* const* argv)
   MTR_META_THREAD_NAME(ctx.args_info.output_obj.c_str());
 
   if (ctx.config.debug()) {
-    std::string path = FMT("{}.ccache-input-text", ctx.args_info.output_obj);
+    const auto path = prepare_debug_path(
+      ctx.config.debug_dir(), ctx.args_info.output_obj, "input-text");
     File debug_text_file(path, "w");
     if (debug_text_file) {
       ctx.hash_debug_files.push_back(std::move(debug_text_file));
@@ -2334,8 +2359,7 @@ do_cache_compilation(Context& ctx, const char* const* argv)
                             : nullptr;
 
   Hash common_hash;
-  init_hash_debug(
-    ctx, common_hash, ctx.args_info.output_obj, 'c', "COMMON", debug_text_file);
+  init_hash_debug(ctx, common_hash, 'c', "COMMON", debug_text_file);
 
   MTR_BEGIN("hash", "common_hash");
   hash_common_info(
@@ -2344,12 +2368,7 @@ do_cache_compilation(Context& ctx, const char* const* argv)
 
   // Try to find the hash using the manifest.
   Hash direct_hash = common_hash;
-  init_hash_debug(ctx,
-                  direct_hash,
-                  ctx.args_info.output_obj,
-                  'd',
-                  "DIRECT MODE",
-                  debug_text_file);
+  init_hash_debug(ctx, direct_hash, 'd', "DIRECT MODE", debug_text_file);
 
   Args args_to_hash = processed.preprocessor_args;
   args_to_hash.push_back(processed.extra_args_to_hash);
@@ -2393,12 +2412,7 @@ do_cache_compilation(Context& ctx, const char* const* argv)
     // Find the hash using the preprocessed output. Also updates
     // ctx.included_files.
     Hash cpp_hash = common_hash;
-    init_hash_debug(ctx,
-                    cpp_hash,
-                    ctx.args_info.output_obj,
-                    'p',
-                    "PREPROCESSOR MODE",
-                    debug_text_file);
+    init_hash_debug(ctx, cpp_hash, 'p', "PREPROCESSOR MODE", debug_text_file);
 
     MTR_BEGIN("hash", "cpp_hash");
     result_name = calculate_result_name(

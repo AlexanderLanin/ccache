@@ -293,6 +293,24 @@ base_tests() {
     expect_stat 'files in cache' 1
 
     # -------------------------------------------------------------------------
+    TEST "SOURCE_DATE_EPOCH with time_macros sloppiness"
+
+    CCACHE_SLOPPINESS=time_macros SOURCE_DATE_EPOCH=1 $CCACHE_COMPILE -c test1.c
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+
+    CCACHE_SLOPPINESS=time_macros SOURCE_DATE_EPOCH=2 $CCACHE_COMPILE -c test1.c
+    expect_stat 'cache hit (preprocessed)' 1
+    expect_stat 'cache miss' 1
+    expect_stat 'files in cache' 1
+
+    SOURCE_DATE_EPOCH=1 $CCACHE_COMPILE -c test1.c
+    expect_stat 'cache hit (preprocessed)' 1
+    expect_stat 'cache miss' 2
+    expect_stat 'files in cache' 2
+
+    # -------------------------------------------------------------------------
     TEST "Result file is compressed"
 
     $CCACHE_COMPILE -c test1.c
@@ -788,7 +806,7 @@ EOF
     chmod +x gcc
 
     CCACHE_DEBUG=1 $CCACHE ./gcc -c test1.c
-    compiler_type=$(sed -rn 's/.*Compiler type: (.*)/\1/p' test1.o.ccache-log)
+    compiler_type=$(sed -En 's/.*Compiler type: (.*)/\1/p' test1.o.ccache-log)
     if [ "$compiler_type" != gcc ]; then
         test_failed "Compiler type $compiler_type != gcc"
     fi
@@ -796,7 +814,7 @@ EOF
     rm test1.o.ccache-log
 
     CCACHE_COMPILERTYPE=clang CCACHE_DEBUG=1 $CCACHE ./gcc -c test1.c
-    compiler_type=$(sed -rn 's/.*Compiler type: (.*)/\1/p' test1.o.ccache-log)
+    compiler_type=$(sed -En 's/.*Compiler type: (.*)/\1/p' test1.o.ccache-log)
     if [ "$compiler_type" != clang ]; then
         test_failed "Compiler type $compiler_type != clang"
     fi
@@ -1084,6 +1102,17 @@ EOF
     chmod +x empty-object-prefix
     CCACHE_PREFIX=`pwd`/empty-object-prefix $CCACHE_COMPILE -c test_empty_obj.c
     expect_stat 'compiler produced empty output' 1
+
+    # -------------------------------------------------------------------------
+    TEST "Output to /dev/null"
+
+    $CCACHE_COMPILE -c test1.c
+    expect_stat 'cache hit (preprocessed)' 0
+    expect_stat 'cache miss' 1
+
+    $CCACHE_COMPILE -c test1.c -o /dev/null
+    expect_stat 'cache hit (preprocessed)' 1
+    expect_stat 'cache miss' 1
 
     # -------------------------------------------------------------------------
     TEST "Caching stderr"

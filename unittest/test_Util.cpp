@@ -146,6 +146,16 @@ TEST_CASE("Util::dir_name")
   CHECK(Util::dir_name("/") == "/");
   CHECK(Util::dir_name("/foo") == "/");
   CHECK(Util::dir_name("/foo/bar/f.txt") == "/foo/bar");
+
+#ifdef _WIN32
+  CHECK(Util::dir_name("C:/x/y") == "C:/x");
+  CHECK(Util::dir_name("X:/x/y") == "X:/x");
+  CHECK(Util::dir_name("C:\\x\\y") == "C:\\x");
+  CHECK(Util::dir_name("C:/x") == "C:/");
+  CHECK(Util::dir_name("C:\\x") == "C:\\");
+  CHECK(Util::dir_name("C:/") == "C:/");
+  CHECK(Util::dir_name("C:\\") == "C:\\");
+#endif
 }
 
 TEST_CASE("Util::strip_ansi_csi_seqs")
@@ -443,6 +453,31 @@ TEST_CASE("Util::get_path_in_cache")
         == "/zz/ccache/A/B/C/D/EF.suffix");
 }
 
+TEST_CASE("Util::hard_link")
+{
+  TestContext test_context;
+
+  SUBCASE("Link file to nonexistent destination")
+  {
+    Util::write_file("old", "content");
+    CHECK_NOTHROW(Util::hard_link("old", "new"));
+    CHECK(Util::read_file("new") == "content");
+  }
+
+  SUBCASE("Link file to existing destination")
+  {
+    Util::write_file("old", "content");
+    Util::write_file("new", "other content");
+    CHECK_NOTHROW(Util::hard_link("old", "new"));
+    CHECK(Util::read_file("new") == "content");
+  }
+
+  SUBCASE("Link nonexistent file")
+  {
+    CHECK_THROWS_AS(Util::hard_link("old", "new"), Error);
+  }
+}
+
 TEST_CASE("Util::int_to_big_endian")
 {
   uint8_t bytes[8];
@@ -526,6 +561,69 @@ TEST_CASE("Util::is_dir_separator")
   CHECK(Util::is_dir_separator('\\'));
 #else
   CHECK(!Util::is_dir_separator('\\'));
+#endif
+}
+
+TEST_CASE("Util::make_relative_path")
+{
+  using Util::make_relative_path;
+
+  const TestContext test_context;
+
+  const std::string cwd = Util::get_actual_cwd();
+  const std::string actual_cwd = FMT("{}/d", cwd);
+#ifdef _WIN32
+  const std::string apparent_cwd = actual_cwd;
+#else
+  const std::string apparent_cwd = FMT("{}/s", cwd);
+#endif
+
+  REQUIRE(Util::create_dir("d"));
+#ifndef _WIN32
+  REQUIRE(symlink("d", "s") == 0);
+#endif
+  REQUIRE(chdir("d") == 0);
+  Util::setenv("PWD", apparent_cwd);
+
+  SUBCASE("No base directory")
+  {
+    CHECK(make_relative_path("", "/a", "/a", "/a/x") == "/a/x");
+  }
+
+  SUBCASE("Path matches neither actual nor apparent CWD")
+  {
+#ifdef _WIN32
+    CHECK(make_relative_path("C:/", "C:/a", "C:/b", "C:/x") == "C:/x");
+#else
+    CHECK(make_relative_path("/", "/a", "/b", "/x") == "/x");
+#endif
+  }
+
+  SUBCASE("Match of actual CWD")
+  {
+#ifdef _WIN32
+    CHECK(
+      make_relative_path(
+        actual_cwd.substr(0, 3), actual_cwd, apparent_cwd, actual_cwd + "/x")
+      == "./x");
+#else
+    CHECK(make_relative_path("/", actual_cwd, apparent_cwd, actual_cwd + "/x")
+          == "./x");
+#endif
+  }
+
+#ifndef _WIN32
+  SUBCASE("Match of apparent CWD")
+  {
+    CHECK(make_relative_path("/", actual_cwd, apparent_cwd, apparent_cwd + "/x")
+          == "./x");
+  }
+
+  SUBCASE("Match if using resolved (using realpath(3)) path")
+  {
+    CHECK(make_relative_path("/", actual_cwd, actual_cwd, apparent_cwd + "/x")
+          == "./x");
+  }
 #endif
 }
 

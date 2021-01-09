@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Joel Rosdahl and other contributors
+// Copyright (C) 2020-2021 Joel Rosdahl and other contributors
 //
 // See doc/AUTHORS.adoc for a complete list of contributors.
 //
@@ -688,6 +688,19 @@ process_arg(Context& ctx,
     return nullopt;
   }
 
+  if (config.compiler_type() != CompilerType::clang
+      && (args[i] == "-fcolor-diagnostics"
+          || args[i] == "-fno-color-diagnostics")) {
+    // Special case: If a non-Clang compiler gets -f(no-)color-diagnostics we'll
+    // bail out and just execute the compiler. The reason is that we don't
+    // include -f(no-)color-diagnostics in the hash so there can be a false
+    // cache hit in the following scenario:
+    //
+    //   1. ccache gcc -c example.c                      # adds a cache entry
+    //   2. ccache gcc -c example.c -fcolor-diagnostics  # unexpectedly succeeds
+    return Statistic::unsupported_compiler_option;
+  }
+
   if (args[i] == "-fcolor-diagnostics" || args[i] == "-fdiagnostics-color"
       || args[i] == "-fdiagnostics-color=always") {
     state.color_diagnostics = ColorDiagnostics::always;
@@ -1056,12 +1069,6 @@ process_args(Context& ctx)
   }
 
   if (args_info.seen_split_dwarf) {
-    size_t pos = args_info.output_obj.rfind('.');
-    if (pos == std::string::npos || pos == args_info.output_obj.size() - 1) {
-      LOG_RAW("Badly formed object filename");
-      return Statistic::bad_compiler_arguments;
-    }
-
     args_info.output_dwo = Util::change_extension(args_info.output_obj, ".dwo");
   }
 

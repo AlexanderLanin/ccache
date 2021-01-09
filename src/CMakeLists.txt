@@ -52,6 +52,9 @@ if(WIN32)
 endif()
 
 add_library(ccache_lib STATIC ${source_files})
+target_compile_definitions(
+  ccache_lib PUBLIC -Dnssv_CONFIG_SELECT_STRING_VIEW=nssv_STRING_VIEW_NONSTD
+)
 
 if(WIN32)
   target_link_libraries(ccache_lib PRIVATE ws2_32 "psapi")
@@ -74,6 +77,6 @@ target_link_libraries(
   PRIVATE standard_settings standard_warnings ZSTD::ZSTD
           Threads::Threads third_party_lib)
 
-target_include_directories(ccache_lib PRIVATE ${CMAKE_BINARY_DIR} .)
+target_include_directories(ccache_lib PRIVATE ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(third_party)
